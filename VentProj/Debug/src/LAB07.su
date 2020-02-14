@@ -1,0 +1,8 @@
+core_cm3.h:1335:22:void NVIC_DisableIRQ(IRQn_Type)	16	static
+core_cm3.h:1405:22:void NVIC_SetPriority(IRQn_Type, uint32_t)	16	static
+core_cm3.h:1532:26:uint32_t SysTick_Config(uint32_t)	16	static
+gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	16	static
+LAB07.cpp:43:5:int example()	440	static
+LAB07.cpp:288:6:void handleleds()	120	static
+LAB07.cpp:315:5:int exercise2()	448	static
+LAB07.cpp:602:5:int main()	8	static

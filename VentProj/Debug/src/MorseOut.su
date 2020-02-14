@@ -1,0 +1,7 @@
+MorseOut.cpp:63:1:MorseOut::MorseOut(DigitalIoPin&, DigitalIoPin&, uint32_t)	24	static
+MorseOut.cpp:67:6:void MorseOut::SetQuanta(uint32_t)	16	static
+MorseOut.cpp:69:6:void MorseOut::Output(const char*)	32	static
+MorseOut.cpp:103:6:bool MorseOut::printchar(char)	32	static
+MorseOut.cpp:120:6:void MorseOut::Output(int)	16	static
+MorseOut.cpp:128:1:MorseOut::~MorseOut()	16	static
+MorseOut.cpp:128:1:virtual MorseOut::~MorseOut()	16	static

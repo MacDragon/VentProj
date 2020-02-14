@@ -1,0 +1,5 @@
+core_cm3.h:1335:22:void NVIC_DisableIRQ(IRQn_Type)	16	static
+gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	16	static
+DinerSign.h:19:2:Event::Event(Event::eventType, int)	24	static
+LAB04.cpp:34:5:int compare(const void*, const void*)	16	static
+LAB04.cpp:43:5:int main()	560	static

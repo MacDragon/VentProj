@@ -1,0 +1,16 @@
+core_cm3.h:1323:22:void NVIC_EnableIRQ(IRQn_Type)	16	static
+core_cm3.h:1335:22:void NVIC_DisableIRQ(IRQn_Type)	16	static
+core_cm3.h:1375:22:void NVIC_ClearPendingIRQ(IRQn_Type)	16	static
+sysctl_15xx.h:185:20:void Chip_SYSCTL_PeriphReset(CHIP_SYSCTL_PERIPH_RESET_T)	16	static
+iocon_15xx.h:95:20:void Chip_IOCON_PinMuxSet(LPC_IOCON_T*, uint8_t, uint8_t, uint32_t)	24	static
+gpio_15xx.h:158:20:void Chip_GPIO_SetPinDIRInput(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
+pinint_15xx.h:79:20:void Chip_PININT_Init(LPC_PIN_INT_T*)	16	static
+pinint_15xx.h:101:20:void Chip_PININT_SetPinModeEdge(LPC_PIN_INT_T*, uint32_t)	16	static
+pinint_15xx.h:171:20:void Chip_PININT_EnableIntLow(LPC_PIN_INT_T*, uint32_t)	16	static
+pinint_15xx.h:245:20:void Chip_PININT_ClearIntStatus(LPC_PIN_INT_T*, uint32_t)	16	static
+inmux_15xx.h:221:20:void Chip_INMUX_PinIntSel(uint8_t, uint8_t, uint8_t)	16	static
+gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	16	static
+LAB05.cpp:50:6:void PIN_INT0_IRQHandler()	8	static
+LAB05.cpp:60:5:int compare(const void*, const void*)	16	static
+LAB05.cpp:69:6:void printbutton(LiquidCrystal&, DigitalIoPin&, uint8_t)	24	static
+LAB05.cpp:75:5:int main()	672	static

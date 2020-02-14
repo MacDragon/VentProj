@@ -1,0 +1,4 @@
+gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	16	static
+ITM.cpp:10:1:ITM::ITM()	16	static
+ITM.cpp:15:1:ITM::~ITM()	16	static
+ITM.cpp:15:1:virtual ITM::~ITM()	16	static

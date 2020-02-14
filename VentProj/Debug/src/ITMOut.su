@@ -1,0 +1,7 @@
+gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	16	static
+ITMOut.cpp:12:1:ITMOut::ITMOut()	16	static
+ITMOut.cpp:17:6:void ITMOut::print(const char*)	16	static
+ITMOut.cpp:21:6:void ITMOut::print(const string&)	16	static
+ITMOut.cpp:26:6:void ITMOut::print(int)	16	static
+ITMOut.cpp:32:1:ITMOut::~ITMOut()	16	static
+ITMOut.cpp:32:1:virtual ITMOut::~ITMOut()	16	static
