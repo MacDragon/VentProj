@@ -39,7 +39,7 @@
 
 #include "I2C.h"
 
-I2C::I2C(unsigned int const device_number, unsigned int const speed, unsigned int const clock_divider, unsigned const int i2c_mode) :
+I2C::I2C(unsigned int const device_number, unsigned int const speed, unsigned int const clock_divider, unsigned int const i2c_mode) :
 device{ LPC_I2C0 } {
 	/* LPC1549 only has I2C0, but if there were more devices the device could be assigned by incrementing LPC_I2C_Base by device_number (probably) */
 	/* Board init must have been called before the pins can be configured */

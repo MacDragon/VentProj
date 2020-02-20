@@ -8,15 +8,15 @@
 ===============================================================================
  */
 
-#include "board.h"
 #include <cr_section_macros.h>
 #include <memory>
 #include <atomic>
+#include "board.h"
 
 #include "LiquidCrystal.h"
-#include "LpcUart.h"
-#include "SimpleMenu.h"
 #include "IntegerEdit.h"
+#include "SimpleMenu.h"
+#include "LpcUart.h"
 #include "I2C.h"
 #include "Fan.h"
 #include "PID.h"
@@ -26,7 +26,6 @@ static constexpr uint8_t i2c_pressure_address { 0x40 };
 static constexpr uint8_t sensorReadCMD { 0xF1 };
 static std::atomic<uint32_t> counter, systicks, last_press;
 static std::atomic<int16_t> pressure_diff;
-static std::atomic<uint8_t> mode;
 static uint8_t sensorData[3];
 static LiquidCrystal* lcd;
 static SimpleMenu* menu;
@@ -60,7 +59,6 @@ void PIN_INT2_IRQHandler(void) {
 
 void SysTick_Handler(void) {
 	systicks++;
-
 	if(counter > 0) counter--;
 }
 }
