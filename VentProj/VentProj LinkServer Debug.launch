@@ -1,13 +1,15 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <launchConfiguration type="com.crt.dsfdebug.crtmcu.launchType">
 <stringAttribute key=".gdbinit" value=""/>
+<stringAttribute key="InstructionTraceInfo" value="eJzFVl1v4jgUfV9p/0OU9y4EaMpIw1bGMUO0+VLstKN5sVxwGXZCwibOTOff780HtAGX9mGk4QHF9rnH59574vjj7dMuNb7Lotzm2cy0/hqahsxW+XqbbWZmwhZXU/P27z//+CjVTqoHRyqxTct6goliI9VCClUVsjR88W9e3B14gMXfZr2JOoYwfy5KaaD1GmLKmXl1Pbbt4cS+GZlGBFMyUzNTFZU0BzXeuWfn+KltTy1bi3d1/NOb4QdLz0/YXKdneH3zkv9RpGUX4J8FWK8AoVY/1Al2ZE8nY2tsD/UxrBAruaiyTKZ9Rdcf7Ml0qK/QD4XzQtLt5is87PZ5BgCj3ldbM1x6+erbzAyqNG2fTQMoYrmhCmigT7/tZ3YNfzw4qk6ip74DrCBNUQjQWxpBtXuQxcyctNWg1X6fF0quDbzb+0Ktvna1MvDPVSpxXmWqhjdzdUBdss7ThiOUqMeHnhjeNvtmHUe+ePJFCbWzrs3jvsN2Xz1Nu3PH0g60JNYlkvdrGf0amnFLMzjWsrNZVOSP2xSOha6KZdcOjlnsGXcireSxHoPX8IMXDT4Az/1brwRPe6J2uFydm/lwYBzMfJ8X66OZ5UO1ieV/xxyBhCpRKPD3vjmXYJSmx+Vm5MnvMm0W2XYnSyVeVKx5KdFzRHeMLV4k8ew615mZsOg6MY9iQknATn1ZI1iMMOGUoZjBfxhdwi4R5Qt3ES4Sz9OtI4+ROEDMvSN8HqMAL3mE8D9Ev/Ey8ed8POI0iaIw1mNcn4A0P+LAmiCPkwCHjht80oFj4iSYOByHSQA6uKUDYRTwhBJO/DlAXUj9HjG8jEI3YFQX4CCGOHKgiDisdYTsIJg4+hp4PCafXAoSKDwhB8090jnxpFeNGU+61sw17W/ktrmcKeujIuTGjUZCaSMTxYiFb0W5AWVx4oNGGiYxJq/BR5MWX3eeOyRiy8u8OATJn9n7hQC4to3Hw4RFyXkb+uimIW9zj0643eBt6hocOOCLfhSnxCP4fXnowucJ5dT9Qi5H+75DwNxg3ItSu2Y0/nXOLNyLHTz7a3A8wZqbCTy95zvd3VU0R9vpFeGMTmr4DjcHzXe/eRsoW5we3Ze3aCG9q18z1b8e/g/AQBywAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"/>
 <booleanAttribute key="attach" value="false"/>
 <stringAttribute key="bootrom.stall" value=""/>
 <stringAttribute key="com.crt.ctrlcenter.OFSemuDetails" value="LinkServer"/>
 <booleanAttribute key="com.crt.ctrlcenter.crtInit" value="true"/>
 <stringAttribute key="com.crt.ctrlcenter.currentWireType" value="SWD"/>
 <booleanAttribute key="com.crt.ctrlcenter.mainBreakIsHardware" value="true"/>
-<stringAttribute key="com.crt.ctrlcenter.serialNumber" value="LinkServerNXP SemiconductorsLPC-LINK2 CMSIS-DAP V5.361MSARBQDQ"/>
+<booleanAttribute key="com.crt.ctrlcenter.saveState" value="true"/>
+<stringAttribute key="com.crt.ctrlcenter.serialNumber" value="LinkServerNXP SemiconductorsLPC-LINK2 CMSIS-DAP V5.224LRA5AQDQ"/>
 <mapAttribute key="com.crt.ctrlcenter.symbolsGroupSettings"/>
 <intAttribute key="com.crt.ctrlcenter.version" value="6"/>
 <stringAttribute key="com.nxp.mcuxpresso.flash.base.address" value="0x0"/>
@@ -18,7 +20,7 @@
 <stringAttribute key="com.nxp.mcuxpresso.flash.program.action" value="Program"/>
 <booleanAttribute key="com.nxp.mcuxpresso.flash.reset.target" value="true"/>
 <stringAttribute key="com.nxp.mcuxpresso.ide.probe.manufacturer" value="NXP Semiconductors"/>
-<stringAttribute key="com.nxp.mcuxpresso.ide.probe.name" value="LPC-LINK2 CMSIS-DAP V5.361"/>
+<stringAttribute key="com.nxp.mcuxpresso.ide.probe.name" value="LPC-LINK2 CMSIS-DAP V5.224"/>
 <stringAttribute key="com.nxp.mcuxpresso.ide.probe.type" value="LinkServer"/>
 <stringAttribute key="debug.level" value="2"/>
 <stringAttribute key="emu.speed" value=""/>
@@ -82,7 +84,7 @@
 <mapEntry key="[debug]" value="com.nxp.mcuxpresso.core.debug.support.linkserver.launch.LinkServerGdbLaunch"/>
 </mapAttribute>
 <stringAttribute key="org.eclipse.dsf.launch.MEMORY_BLOCKS" value="&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;&#10;&lt;memoryBlockExpressionList context=&quot;reserved-for-future-use&quot;/&gt;&#10;"/>
-<stringAttribute key="process_factory_id" value="com.nxp.mcuxpresso.core.debug.override.MCXProcessFactory"/>
+<stringAttribute key="process_factory_id" value="com.crt.dsfdebug.dsf.override.CRTProcessFactory"/>
 <booleanAttribute key="redlink.disable.preconnect.script" value="false"/>
 <booleanAttribute key="redlink.enable.flashhashing" value="true"/>
 <booleanAttribute key="redlink.enable.rangestepping" value="true"/>

@@ -1,11 +1,43 @@
+core_cm3.h:1323:22:void NVIC_EnableIRQ(IRQn_Type)	16	static
 core_cm3.h:1335:22:void NVIC_DisableIRQ(IRQn_Type)	16	static
+core_cm3.h:1375:22:void NVIC_ClearPendingIRQ(IRQn_Type)	16	static
 core_cm3.h:1405:22:void NVIC_SetPriority(IRQn_Type, uint32_t)	16	static
 core_cm3.h:1532:26:uint32_t SysTick_Config(uint32_t)	16	static
 sysctl_15xx.h:185:20:void Chip_SYSCTL_PeriphReset(CHIP_SYSCTL_PERIPH_RESET_T)	16	static
 swm_15xx.h:232:20:void Chip_SWM_MovablePortPinAssign(CHIP_SWM_PIN_MOVABLE_T, uint8_t, uint8_t)	16	static
-gpio_15xx.h:158:20:void Chip_GPIO_SetPinDIRInput(LPC_GPIO_T*, uint8_t, uint8_t)	16	static
+pinint_15xx.h:79:20:void Chip_PININT_Init(LPC_PIN_INT_T*)	16	static
+pinint_15xx.h:101:20:void Chip_PININT_SetPinModeEdge(LPC_PIN_INT_T*, uint32_t)	16	static
+pinint_15xx.h:136:20:void Chip_PININT_EnableIntHigh(LPC_PIN_INT_T*, uint32_t)	16	static
+pinint_15xx.h:245:20:void Chip_PININT_ClearIntStatus(LPC_PIN_INT_T*, uint32_t)	16	static
+ritimer_15xx.h:107:20:void Chip_RIT_Enable(LPC_RITIMER_T*)	16	static
+ritimer_15xx.h:117:20:void Chip_RIT_Disable(LPC_RITIMER_T*)	16	static
+ritimer_15xx.h:171:20:bool Chip_RIT_GetIntStatus(LPC_RITIMER_T*)	16	static
+ritimer_15xx.h:181:20:void Chip_RIT_ClearIntStatus(LPC_RITIMER_T*)	16	static
+inmux_15xx.h:221:20:void Chip_INMUX_PinIntSel(uint8_t, uint8_t, uint8_t)	16	static
 gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	16	static
-ventproj.cpp:76:6:void QEI_Setup()	16	static
-ventproj.cpp:154:6:void handleleds()	120	static
-ventproj.cpp:181:5:int QEITest()	504	static
-ventproj.cpp:303:5:int main()	8	static
+atomic_base.h:80:3:constexpr std::memory_order std::operator&(std::memory_order, std::__memory_order_modifier)	16	static
+PID.h:17:9:double PID::calculate(unsigned int, unsigned int)	64	static
+ventproj.cpp:37:6:void PIN_INT0_IRQHandler()	24	static
+ventproj.cpp:45:6:void PIN_INT1_IRQHandler()	24	static
+ventproj.cpp:53:6:void PIN_INT2_IRQHandler()	24	static
+ventproj.cpp:61:6:void SysTick_Handler()	8	static
+ventproj.cpp:68:6:void Sleep(int)	16	static
+ventproj.cpp:73:6:void delayMilliseconds(uint64_t)	32	static
+ventproj.cpp:84:10:uint32_t millis()	8	static
+ventproj.cpp:158:49:main()::<lambda(const IntegerEdit&)>	24	static
+ventproj.cpp:158:49:static void main()::<lambda(const IntegerEdit&)>::_FUN(const IntegerEdit&)	16	static
+ventproj.cpp:158:49:main()::<lambda(const IntegerEdit&)>::operator void (*)(const IntegerEdit&)() const	16	static
+ventproj.cpp:162:47:main()::<lambda(const IntegerEdit&)>	104	static
+ventproj.cpp:162:47:static void main()::<lambda(const IntegerEdit&)>::_FUN(const IntegerEdit&)	16	static
+ventproj.cpp:162:47:main()::<lambda(const IntegerEdit&)>::operator void (*)(const IntegerEdit&)() const	16	static
+ventproj.cpp:88:5:int main()	696	static
+atomic_base.h:258:7:std::__atomic_base<_IntTp>::operator std::__atomic_base<_IntTp>::__int_type() const [with _ITp = long unsigned int]	24	static
+atomic_base.h:265:7:std::__atomic_base<_IntTp>::__int_type std::__atomic_base<_IntTp>::operator=(std::__atomic_base<_IntTp>::__int_type) [with _ITp = long unsigned int]	32	static
+atomic_base.h:279:7:std::__atomic_base<_IntTp>::__int_type std::__atomic_base<_IntTp>::operator++(int) [with _ITp = long unsigned int]	32	static
+atomic_base.h:287:7:std::__atomic_base<_IntTp>::__int_type std::__atomic_base<_IntTp>::operator--(int) [with _ITp = long unsigned int]	32	static
+atomic_base.h:265:7:std::__atomic_base<_IntTp>::__int_type std::__atomic_base<_IntTp>::operator=(std::__atomic_base<_IntTp>::__int_type) [with _ITp = short int]	24	static
+atomic_base.h:258:7:std::__atomic_base<_IntTp>::operator std::__atomic_base<_IntTp>::__int_type() const [with _ITp = short int]	24	static
+LiquidCrystal.h:83:8:) [with Args = {short int}]	32	static
+LiquidCrystal.h:83:8:) [with Args = {}]	24	static
+ventproj.cpp:185:1:void __static_initialization_and_destruction_0(int, int)	16	static
+ventproj.cpp:185:1:cpp)	8	static

@@ -1,3 +1,0 @@
-gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	16	static
-LAB03.cpp:38:5:int compare(const void*, const void*)	16	static
-LAB03.cpp:49:5:int main()	920	static

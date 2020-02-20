@@ -11,15 +11,11 @@
 #include "board.h"
 
 class DigitalIoPin {
-private:
-	int const port, pin;
-	bool const input, invert;
-
 public:
 	DigitalIoPin(int const port, int const pin, bool const input, bool const pullup, bool const invert);
 	virtual ~DigitalIoPin();
 
-	constexpr bool read() const {
+	bool read() const {
 		return static_cast<bool>(LPC_GPIO->B[port][pin]);
 	}
 
@@ -30,6 +26,10 @@ public:
 	void toggle() const {
 		LPC_GPIO->B[port][pin] = invert ? read() : !read();
 	}
+
+private:
+	int const port, pin;
+	bool const input, invert;
 };
 
 #endif /* DIGITALIOPIN_H_ */

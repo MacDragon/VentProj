@@ -13,16 +13,16 @@ LpcUart.cpp:30:6:void UART1_IRQHandler()	8	static
 LpcUart.cpp:39:6:void UART2_IRQHandler()	8	static
 LpcUart.cpp:51:6:void LpcUart::isr()	16	static
 LpcUart.cpp:57:1:LpcUart::LpcUart(const LpcUartConfig&)	24	static
-LpcUart.cpp:161:1:LpcUart::~LpcUart()	16	static
-LpcUart.cpp:161:1:virtual LpcUart::~LpcUart()	16	static
-LpcUart.cpp:180:6:int LpcUart::free()	16	static
-LpcUart.cpp:185:6:int LpcUart::peek()	16	static
-LpcUart.cpp:190:6:int LpcUart::read(char&)	16	static
-LpcUart.cpp:195:6:int LpcUart::read(char*, int)	24	static
-LpcUart.cpp:200:5:int LpcUart::write(char)	16	static
-LpcUart.cpp:205:5:int LpcUart::write(const char*)	24	static
-LpcUart.cpp:210:5:int LpcUart::write(const char*, int)	24	static
-LpcUart.cpp:215:6:void LpcUart::txbreak(bool)	16	static
-LpcUart.cpp:220:6:bool LpcUart::rxbreak()	16	static
-LpcUart.cpp:226:6:void LpcUart::speed(int)	16	static
-LpcUart.cpp:231:6:bool LpcUart::txempty()	16	static
+LpcUart.cpp:160:1:LpcUart::~LpcUart()	16	static
+LpcUart.cpp:160:1:virtual LpcUart::~LpcUart()	16	static
+LpcUart.cpp:176:6:int LpcUart::free()	16	static
+LpcUart.cpp:181:6:int LpcUart::peek()	16	static
+LpcUart.cpp:186:6:int LpcUart::read(char&)	16	static
+LpcUart.cpp:191:6:int LpcUart::read(char*, int)	24	static
+LpcUart.cpp:196:5:int LpcUart::write(char)	16	static
+LpcUart.cpp:201:5:int LpcUart::write(const char*)	24	static
+LpcUart.cpp:206:5:int LpcUart::write(const char*, int)	24	static
+LpcUart.cpp:211:6:void LpcUart::txbreak(bool)	16	static
+LpcUart.cpp:216:6:bool LpcUart::rxbreak()	16	static
+LpcUart.cpp:222:6:void LpcUart::speed(int)	16	static
+LpcUart.cpp:227:6:bool LpcUart::txempty()	16	static

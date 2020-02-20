@@ -6,7 +6,6 @@
 #include <string>
 #include "chip.h"
 #include "DigitalIoPin.h"
-#include "Imutex.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01
@@ -101,9 +100,7 @@ private:
   uint8_t _displayfunction;
   uint8_t _displaycontrol;
   uint8_t _displaymode;
-
   uint8_t _initialized;
-
   uint8_t _numlines,_currline;
 };
 

@@ -18,8 +18,6 @@ void SimpleMenu::addItem(MenuItem* item) {
 }
 
 void SimpleMenu::event(const MenuItem::menuEvent& e) {
-	//const std::lock_guard<Imutex> lock(mutex);
-
 	if(items.size() <= 0) return;
 
 	if(!items[position]->event(e)) {

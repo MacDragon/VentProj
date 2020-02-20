@@ -1,9 +1,10 @@
 new:168:14:void* operator new(std::size_t, void*)	16	static
+gthr-default.h:229:1:int __gthread_key_delete(__gthread_key_t)	16	static
 SimpleMenu.cpp:10:1:SimpleMenu::SimpleMenu()	16	static
-SimpleMenu.cpp:14:1:SimpleMenu::~SimpleMenu()	16	static
-SimpleMenu.cpp:14:1:virtual SimpleMenu::~SimpleMenu()	16	static
-SimpleMenu.cpp:18:6:void SimpleMenu::addItem(MenuItem*)	16	static
-SimpleMenu.cpp:22:6:void SimpleMenu::event(MenuItem::menuEvent)	24	static
+SimpleMenu.cpp:12:1:SimpleMenu::~SimpleMenu()	16	static
+SimpleMenu.cpp:12:1:virtual SimpleMenu::~SimpleMenu()	16	static
+SimpleMenu.cpp:16:6:void SimpleMenu::addItem(MenuItem*)	16	static
+SimpleMenu.cpp:20:6:void SimpleMenu::event(const MenuItem::menuEvent&)	24	static
 stl_vector.h:391:7:std::vector<_Tp, _Alloc>::vector() [with _Tp = MenuItem*; _Alloc = std::allocator<MenuItem*>]	16	static
 stl_vector.h:565:7:std::vector<_Tp, _Alloc>::~vector() [with _Tp = MenuItem*; _Alloc = std::allocator<MenuItem*>]	24	static
 stl_vector.h:1074:7:void std::vector<_Tp, _Alloc>::push_back(const value_type&) [with _Tp = MenuItem*; _Alloc = std::allocator<MenuItem*>]	16	static
