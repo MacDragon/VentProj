@@ -2,60 +2,28 @@
 #include "systick.h"
 
 
-DigitalIoPin::DigitalIoPin(int port, int pin, bool input, bool pullup, bool invert) : port(port), pin(pin), input(input), invert(invert)
+DigitalIoPin::DigitalIoPin(uint8_t const port, uint8_t const pin, bool const input, bool const pullup, bool const invert) :
+port { port }, pin { pin }, input { input }, invert { invert }
 {
-	uint32_t pinsettings = IOCON_DIGMODE_EN;
-	if ( input ) {
-		if ( pullup ) pinsettings = pinsettings | IOCON_MODE_PULLUP;
-		if ( invert ) pinsettings = pinsettings | IOCON_INV_EN;
-		Chip_IOCON_PinMuxSet(LPC_IOCON, port, pin, pinsettings);
-		Chip_GPIO_SetPinDIRInput(LPC_GPIO, port, pin);
-		Sleep(1); // allow input to settle
-	} else
-	{
-		pinsettings = pinsettings | IOCON_MODE_INACT;
-		Chip_IOCON_PinMuxSet(LPC_IOCON, port, pin, pinsettings);
-		Chip_GPIO_SetPinDIROutput(LPC_GPIO, port, pin);
-		state = false;
-		write(false);
-	}
-};
+	LPC_IOCON->PIO[port][pin] = (1U + pullup) << 3 | 1U << 7 | invert << 6;
+
+	LPC_GPIO->DIR[port] = input ? LPC_GPIO->DIR[port] & ~(1UL << pin) : LPC_GPIO->DIR[port] | 1UL << pin;
+}
 
 DigitalIoPin::~DigitalIoPin() {};
 
-bool DigitalIoPin::read() {
-	if ( input ) {
-		return Chip_GPIO_GetPinState(LPC_GPIO, port,pin);
-	} else return ( invert ) ? !Chip_GPIO_GetPinState(LPC_GPIO, port,pin)
-		: Chip_GPIO_GetPinState(LPC_GPIO, port,pin);
-		//return state; // state = !Chip_GPIO_GetPinState(LPC_GPIO, ledports[LEDNumber], ledpins[LEDNumber]); used in board library
-};
+/* Remaining DigIO functions are inlined in the header file */
 
-void DigitalIoPin::write(bool in) {
-	bool value = in;
-	if (!input){
-		state = value;
-		if ( invert ) value = !value;
-		Chip_GPIO_SetPinState(LPC_GPIO, port, pin, value);
-	}
-};
+/* Button child class of DigIO 8 */
 
-void DigitalIoPin::toggle() {
-	if (!input){
-		state = !state;
-		write(state);
-	}
-
-}
-
-
-ButtonPin::ButtonPin(int port, int pin, bool invert ) :
-	DigitalIoPin( port,  pin, true, true, invert), press(0), pressed(false), release(0), returnstate(false), lastcall() { };
+ButtonPin::ButtonPin(int port, int pin, bool invert) :
+		DigitalIoPin(port, pin, true, true, invert), press(0), pressed(false), release(0), returnstate(false), lastcall() { };
 
 
 uint32_t ButtonPin::ReadWithBounce() {
+	if ( timebase-lastcall < 10 )
+		return returnstate; // don't check status unless it's been at least 9ms since last check;
 
-	if ( timebase-lastcall < 10 ) return returnstate; // don't check status unless it's been at least 9ms since last check;
 	lastcall = timebase;
 
 	if(read()) {
@@ -71,7 +39,7 @@ uint32_t ButtonPin::ReadWithBounce() {
 		timepressed = timebase;
 		pressed = true;
 		returnstate = true;
-	};
+	}
 
 	if ( release > 3 )
 	{

@@ -18,22 +18,28 @@
 
 #include <stdint.h>
 
-
 class DigitalIoPin {
 public:
-	DigitalIoPin(int port, int pin, bool input = true, bool pullup = true, bool invert = false);
+	DigitalIoPin(uint8_t const port, uint8_t const pin, bool const input, bool const pullup, bool const invert);
 	virtual ~DigitalIoPin();
-	bool read();
-	void write(bool value);
-	void toggle();
-private:
-    uint8_t port;
-    uint8_t pin;
-    bool input;
-    bool state;
-    bool invert;
-};
 
+	/* These should be pretty appropriate to inline */
+	constexpr bool read() const {
+		return static_cast<bool>(LPC_GPIO->B[port][pin]);
+	}
+
+	void write(const bool value) const {
+		LPC_GPIO->B[port][pin] = invert ? !value : value;
+	}
+
+	void toggle() const {
+		LPC_GPIO->B[port][pin] = invert ? read() : !read();
+	}
+
+private:
+	uint8_t const port, pin;
+	bool const input, invert;
+};
 
 class ButtonPin : public DigitalIoPin {
 public:

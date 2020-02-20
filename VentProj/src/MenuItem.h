@@ -10,7 +10,6 @@
 
 #include "PropertyEdit.h"
 
-
 class MenuItem {
 public:
 	enum menuEvent {
@@ -20,11 +19,12 @@ public:
 		back,
 		show
 	};
-	MenuItem(PropertyEdit *property);
+
+	MenuItem(PropertyEdit* property);
 	virtual ~MenuItem();
 	virtual bool event(menuEvent e);
 private:
-	PropertyEdit *pe;
+	PropertyEdit* pe;
 };
 
 #endif /* MENUITEM_H_ */

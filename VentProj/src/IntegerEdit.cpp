@@ -8,26 +8,19 @@
 #include "IntegerEdit.h"
 #include <cstdio>
 
-IntegerEdit::IntegerEdit(LiquidCrystal *lcd_, std::string editTitle,  int lower, int upper, int step)
-: lcd(lcd_), title(editTitle), lower(lower), upper(upper), step(step) {
-	value = lower;
-	edit = lower;
-	if ( step < 1 ) step = 1; // increment of 0 is useless, and keeps positive
-	focus = false;
-	callback = NULL;
-}
+IntegerEdit::IntegerEdit(LiquidCrystal *lcd_, std::string const& editTitle, int const lowerLimit, int const upperLimit, int const stepSize) :
+lcd(lcd_), title(editTitle), lowerLimit{ lowerLimit }, upperLimit{ upperLimit }, stepSize{ stepSize }, value{ lowerLimit }, edit{ lowerLimit }, focus{ false } {}
 
-IntegerEdit::~IntegerEdit() {
-}
+IntegerEdit::~IntegerEdit() {}
 
 void IntegerEdit::increment() {
-	if ( edit+step <= upper )
-		edit+=step;
+	if(edit < upperLimit)
+		edit++;
 }
 
 void IntegerEdit::decrement() {
-	if ( edit-step >= lower )
-	edit-=step;
+	if(edit > lowerLimit)
+		edit--;
 }
 
 void IntegerEdit::accept() {
@@ -38,12 +31,11 @@ void IntegerEdit::cancel() {
 	edit = value;
 }
 
-
-void IntegerEdit::setFocus(bool focus) {
+void IntegerEdit::setFocus(bool const focus) {
 	this->focus = focus;
 }
 
-bool IntegerEdit::getFocus() {
+bool IntegerEdit::getFocus() const {
 	return this->focus;
 }
 
@@ -65,28 +57,22 @@ void IntegerEdit::display() {
 
 void IntegerEdit::save() {
 	// set current value to be same as edit value
-	if ( edit != value )
-	{
-		value = edit;
-		if ( callback != NULL )
-			callback();
-	}
+	value = edit;
+	if(callback != nullptr)
+		callback(*this);
 	// todo: save current value for example to EEPROM for permanent storage
 }
 
-
-int IntegerEdit::getValue() {
+int IntegerEdit::getValue() const {
 	return value;
 }
-void IntegerEdit::setValue(int value) {
-	if ( value >= lower && value <= upper )
-	{
-		edit = value;
-		save();
-	}
+void IntegerEdit::setValue(int const value) {
+	edit = value;
+	save();
 }
 
-void IntegerEdit::setCallback( void (*callbackfunc)() )
-{
-	if (callbackfunc != NULL ) callback = callbackfunc;
+void IntegerEdit::setCallback(void (*callback)(const IntegerEdit&)) {
+	this->callback = callback;
 }
+
+

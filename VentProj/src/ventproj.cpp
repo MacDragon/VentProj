@@ -6,304 +6,180 @@
  Copyright   : $(copyright)
  Description : main definition
 ===============================================================================
-*/
+ */
 
-#if defined (__USE_LPCOPEN)
-#if defined(NO_BOARD_LIB)
-#include "chip.h"
-#else
 #include "board.h"
-#endif
-#endif
-
 #include <cr_section_macros.h>
-#include "systick.h"
-#include "DigIO.h"
-#include "PIO.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "ITMOut.h"
+#include <memory>
+#include <atomic>
+
 #include "LiquidCrystal.h"
-#include "RealTimeClock.h"
-#include "TempSensor.h"
-#include "BarGraph.h"
-
 #include "LpcUart.h"
-
 #include "SimpleMenu.h"
 #include "IntegerEdit.h"
-#include "DecimalEdit.h"
+#include "I2C.h"
+#include "Fan.h"
+#include "PID.h"
 
+#define TICKRATE_HZ (1000)
+static constexpr uint8_t i2c_pressure_address { 0x40 };
+static constexpr uint8_t sensorReadCMD { 0xF1 };
+static std::atomic<uint32_t> counter, systicks, last_press;
+static std::atomic<int16_t> pressure_diff;
+static std::atomic<uint8_t> mode;
+static uint8_t sensorData[3];
+static LiquidCrystal* lcd;
+static SimpleMenu* menu;
+static Fan* fan;
+static I2C* i2c;
 
-
-/**
- * @brief Quadrature Encoder Interface register block structure
- */
-typedef struct {/*!< QEI Structure          */
-__O  uint32_t  CON;/*!< Control register       */
-__I  uint32_t  STAT;/*!< Encoder status register */
-__IO uint32_t  CONF;/*!< Configuration register */
-__I  uint32_t  POS;/*!< Position register      */
-__IO uint32_t  MAXPOS;/*!< Maximum position register */
-__IO uint32_t  CMPOS0;/*!< position compare register 0 */
-__IO uint32_t  CMPOS1;/*!< position compare register 1 */
-__IO uint32_t  CMPOS2;/*!< position compare register 2 */
-__I  uint32_t  INXCNT;/*!< Index count register   */
-__IO uint32_t  INXCMP0;/*!< Index compare register 0 */
-__IO uint32_t  LOAD;/*!< Velocity timer reload register */
-__I  uint32_t  TIME;/*!< Velocity timer register */
-__I  uint32_t  VEL;/*!< Velocity counter register */
-__I  uint32_t  CAP;/*!< Velocity capture register */
-__IO uint32_t  VELCOMP;/*!< Velocity compare register */
-__IO uint32_t  FILTERPHA;/*!< Digital filter register on input phase A (QEI_A) */
-__IO uint32_t  FILTERPHB;/*!< Digital filter register on input phase B (QEI_B) */
-__IO uint32_t  FILTERINX;/*!< Digital filter register on input index (QEI_IDX) */
-__IO uint32_t  WINDOW;/*!< Index acceptance window register */
-__IO uint32_t  INXCMP1;/*!< Index compare register 1 */
-__IO uint32_t  INXCMP2;/*!< Index compare register 2 */
-__I  uint32_t  RESERVED0[0x3E1];//933 int gap;[/color]
-__O  uint32_t  IEC;/*!< Interrupt enable clear register */
-__O  uint32_t  IES;/*!< Interrupt enable set register */
-__I  uint32_t  INTSTAT;/*!< Interrupt status register */
-__I  uint32_t  IE;/*!< Interrupt enable register */
-__O  uint32_t  CLR;/*!< Interrupt status clear register */
-__O  uint32_t  SET;/*!< Interrupt status set register */
-} LPC_QEI_T;
-
-#define LPC_QEI ((LPC_QEI_T*) LPC_QEI_BASE)
-
-void QEI_Setup(){
-
-//LPC_SWM->PINASSIGN[14] =
-
-/*		7:0 USB_FRAME_TO G_O
-		15:8 QEI0_PHA_I 23:16 QEI0_PHB_I 31:24 QEI0_IDX_I
-		USB_FRAME_TOG function assignment. The value is the 0xFF pin number to be assigned to this function. PIO0_0 = 0,
-		..., PIO1_0 = 32, ..., PIO2_11 = 75.
-		QEI0_PHA function assignment. The value is the pin 0xFF number to be assigned to this function. PIO0_0 = 0, ...,
-		PIO1_0 = 32, ..., PIO2_11 = 75.
-		QEI0_PHB function assignment. The value is the pin 0xFF number to be assigned to this function. PIO0_0 = 0, ...,
-		PIO1_0 = 32, ..., PIO2_11 = 75.
-		QEI0_IDX function assignment. The value is the pin 0xFF number to be assigned to this function. PIO0_0 = 0, ...,
-		PIO1_0 = 32, ..., PIO2_11 = 75.
-		*/
-
-/*
-	Use the SYSAHBCLKCTRL1 register (Table 51) to enable the clock to the QEI interface.
-	Clear the peripheral reset for the entire comparator block using the PRESETCTRL1 register (Table 36).
-	The QEI creates one interrupt connected to slot #44 in the NVIC.
-	Use the switch matrix to assign the QEI inputs to pins. See Table 296.
-*/
-
-// 	Use the SYSAHBCLKCTRL1 register (Table 51) to enable the clock to the QEI interface.
-		Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_QEI);
-//	Clear the peripheral reset for the entire comparator block using the PRESETCTRL1 register (Table 36).
-		Chip_SYSCTL_PeriphReset(RESET_QEI0);
-
-//	Use the switch matrix to assign the QEI inputs to pins. See Table 296.
-		Chip_SWM_MovablePortPinAssign(SWM_QEI0_PHA_I,  PD2_Port,  PD2_Pin);
-	  	Chip_SWM_MovablePortPinAssign(SWM_QEI0_PHB_I,  PD3_Port,  PD3_Pin);
-		Chip_SWM_MovablePortPinAssign(SWM_QEI0_IDX_I,  PD4_Port,  PD4_Pin);
-
-		uint32_t pinsettings = IOCON_DIGMODE_EN | IOCON_MODE_PULLUP;
-
-		Chip_GPIO_SetPinDIRInput(LPC_GPIO, PD2_Port, PD2_Pin);
-		Chip_GPIO_SetPinDIRInput(LPC_GPIO, PD3_Port, PD3_Pin);
-		Chip_GPIO_SetPinDIRInput(LPC_GPIO, PD4_Port, PD4_Pin);
-
-		LPC_QEI->MAXPOS=200;
-
-//		Chip_IOCON_PinMuxSet(LPC_IOCON, PD0_Port, PD0_Pin, IOCON_DIGMODE_EN);
-
-}
-
-
-
-//#define LPC_QEI_PINS PINASSIGN14
-
-/*
- * QEI0_PHA I QEI0_PHB I QEI0_IDX I
-external to pin
-external to pin
-external to pin
-any pin any pin any pin
-PINASSIGN14 PINASSIGN14 PINASSIGN14
-Table 121 Table 121 Table 121
-Phase A (PhA) input to the Quadrature Encoder Interface.
-Phase B (PhB) input to the Quadrature Encoder Interface.
-Index (IDX) input to the Quadrature Encoder Interface.
- */
-
-#define EXERCISE2
-
-#define INPBUFLEN 80
-
-
-#ifdef EXERCISE2
-LpcUart *dbgu;
-DecimalEdit *timev;
-DecimalEdit *blank;
-IntegerEdit *light;
-
-LEDPin *ledred;
-LEDPin *ledgreen;
-LEDPin *ledblue;
-LEDPin *lednone = NULL;
-
-void handleleds()
-{
-	char buffer[BUFLEN+1] = { 0 };
-	sprintf (buffer, "Time: %.1f\n\r", timev->getValue());
-	dbgu->write(buffer);
-	sprintf (buffer, "Blank: %.1f\n\r", blank->getValue());
-	dbgu->write(buffer);
-	sprintf (buffer, "Light: %d\n\r\n\r", light->getValue());
-	dbgu->write(buffer);
-
-	switch ( light->getValue() )
-	{
-	case 0:
-		SetLED(*lednone, 0, 0); // sets to nothing showing.
-		break;
-	case 1:
-		SetLED(*ledred, timev->getValue(), 1000 * blank->getValue());
-		break;
-	case 2:
-		SetLED(*ledgreen, timev->getValue(), 1000 * blank->getValue());
-		break;
-	case 3:
-		SetLED(*ledblue, timev->getValue(), 1000 * blank->getValue());
-		break;
+extern "C" {
+void PIN_INT0_IRQHandler(void) {
+	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+	if(systicks - last_press > 200) {
+		menu->event(MenuItem::up);
+		last_press = systicks.load();
 	}
 }
 
-int QEITest() {
-
-#if defined (__USE_LPCOPEN)
-    // Read clock settings and update SystemCoreClock variable
-    SystemCoreClockUpdate();
-#if !defined(NO_BOARD_LIB)
-    // Set up and initialize all required blocks and
-    // functions related to the board hardware
-    Board_Init();
-    // Set the LED to the state of "On"
-    Board_LED_Set(0, true);
-#endif
-#endif
-	/* Enable and setup SysTick Timer at a periodic rate */
-	SysTick_Config(SystemCoreClock / 1000);
-
-	NVIC_DisableIRQ(I2C0_IRQn);
-
-    // TODO: insert code here
-    Chip_RIT_Init(LPC_RITIMER);
-
- //   NVIC_EnableIRQ(RITIMER_IRQn);
-
-	SysTickSetup();
-
-	LpcPinMap none = {-1, -1}; // unused pin has negative values in it
-	LpcPinMap txpin = { 0, 18 }; // transmit pin that goes to debugger's UART->USB converter
-	LpcPinMap rxpin = { 0, 13 }; // receive pin that goes to debugger's UART->USB converter
-	LpcUartConfig cfg = { LPC_USART0, 115200, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1, false, txpin, rxpin, none, none };
-	//LpcUart dbgu(cfg);
-
-	QEI_Setup();
-
-	dbgu = new LpcUart(cfg);
-
-	dbgu->write("Starting.\n\r");
-
-	char buffer[80];
-	while ( 1 ) {
-		int position=LPC_QEI->POS/2;
-		sprintf(buffer, "Pos: %d, Vel: %d,\n\r", position, LPC_QEI->VEL);
-
-		dbgu->write(buffer);
-		Sleep(100);
+void PIN_INT1_IRQHandler(void) {
+	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
+	if(systicks - last_press > 200) {
+		menu->event(MenuItem::down);
+		last_press = systicks.load();
 	}
-
-
-	ButtonPin sw1(SW1_Port,SW1_Pin);
-	ButtonPin sw2(SW2_Port,SW2_Pin);
-	ButtonPin sw3(SW3_Port,SW3_Pin);
-
-	ledred = new LEDPin(LEDRed_Port,LEDRed_Pin);
-	ledgreen = new LEDPin(LEDGreen_Port,LEDGreen_Pin);
-	ledblue = new LEDPin(LEDBlue_Port,LEDBlue_Pin);
-
-	OutputPin rs(PA0_Port, PA0_Pin);
-	OutputPin en(PA1_Port, PA1_Pin);
-
-	OutputPin d4(PA2_Port, PA2_Pin);
-	OutputPin d5(PA3_Port, PA3_Pin);
-	OutputPin d6(PA4_Port, PA4_Pin);
-	OutputPin d7(PA5_Port, PA5_Pin);
-
-    LiquidCrystal *lcd= new LiquidCrystal(&rs, &en, &d4, &d5, &d6, &d7);
-
-    lcd->begin(16,2);
-    lcd->setCursor(0,0);
-
-    SimpleMenu menu; /* this could also be allocated from the heap */
-    timev = new DecimalEdit(lcd, std::string("Time"), 0, 200, 20 );
-    blank = new DecimalEdit(lcd, std::string("Blank"), 0, 1, 0.1 );
-    light = new IntegerEdit(lcd, std::string("Light"), 0, 3);
-    menu.addItem(new MenuItem(timev));
-    menu.addItem(new MenuItem(blank));
-    menu.addItem(new MenuItem(light));
-    timev->setValue(100);
-    timev->setCallback(&handleleds);
-    blank->setValue(0.5);
-    blank->setCallback(&handleleds);
-    light->setValue(1);
-    light->setCallback(&handleleds);
-
-
-    menu.event(MenuItem::show); // display first menu item
-
-    uint32_t lastpressed = timebase;
-
-    handleleds(); // set initial state of LEDs
-
-    while ( 1 ) // run menu.
-    {
-    	if ( sw1.ReadOnceWithBounce() ) {
-    		menu.event(MenuItem::ok); // ok
-    		lastpressed = timebase;
-    	}
-
-    	if ( sw2.ReadOnceWithBounce() ) {
-    		menu.event(MenuItem::up); // up
-       		lastpressed = timebase;
-    	}
-
-    	if ( sw3.ReadOnceWithBounce() ) {
-    		menu.event(MenuItem::down); // down
-       		lastpressed = timebase;
-    	}
-
-    	if ( timebase-lastpressed > 10000 )
-    	{
-    		menu.event(MenuItem::back); // back
-       		lastpressed = timebase; // only one level so don't need multiple events.
-    	}
-
-        Sleep(10);
-    }
-
-	while(1);
-
-	return 0;
 }
 
-#endif
+void PIN_INT2_IRQHandler(void) {
+	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+	if(systicks - last_press > 200) {
+		menu->event(MenuItem::ok);
+		last_press = systicks.load();
+	}
+}
+
+void SysTick_Handler(void) {
+	systicks++;
+
+	if(counter > 0) counter--;
+}
+}
+
+void Sleep(int ms) {
+	counter = ms;
+	while(counter > 0) __WFI();
+}
+
+void delayMilliseconds(uint64_t ms) {
+	uint64_t compval = ms * SystemCoreClock / 1000;
+	Chip_RIT_Disable(LPC_RITIMER);
+	Chip_RIT_SetCompareValue(LPC_RITIMER, compval);
+	Chip_RIT_SetCounter(LPC_RITIMER, 0);
+	Chip_RIT_Enable(LPC_RITIMER);
+	while(!Chip_RIT_GetIntStatus(LPC_RITIMER)) {};
+	Chip_RIT_Disable(LPC_RITIMER);
+	Chip_RIT_ClearIntStatus(LPC_RITIMER);
+}
+
+uint32_t millis() {
+	return systicks;
+}
 
 int main(void) {
+	SystemCoreClockUpdate();
+	Board_Init();
 
-	QEITest();
+	/* I/O setup */
+	Chip_SWM_MovablePortPinAssign(SWM_SWO_O, 1, 2);
+	LpcUart dbgu{ LpcUartConfig{ LPC_USART0, 115200, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1, false,
+		LpcPinMap{ 0, 18 }, LpcPinMap{ 0, 13 }, LpcPinMap{-1, -1}, LpcPinMap{-1, -1} } };
 
-	while(1) Sleep(100);
+	/* Button setup - to be replaced by QEI */
+	DigitalIoPin sw0(0, 0, true, true, true);
+	DigitalIoPin sw1(1, 3, true, true, true);
+	DigitalIoPin sw2(0, 9, true, true, true);
 
+	Chip_PININT_Init(LPC_GPIO_PIN_INT);
+	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PININT); /* Enable PININT clock */
+	Chip_SYSCTL_PeriphReset(RESET_PININT); /* Reset the PININT block */
+
+	/* Configure interrupt channels for the DigitalIoPins */
+	Chip_INMUX_PinIntSel(0, 0, 0); // SW1
+	Chip_INMUX_PinIntSel(1, 1, 3); // SW2
+	Chip_INMUX_PinIntSel(2, 0, 9); // SW3
+
+	/* Configure channel 0 as edge sensitive and rising edge interrupt */
+	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
+	Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(0));
+	Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(0));
+
+	/* Configure channel 1 as edge sensitive and rising edge interrupt */
+	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
+	Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(1));
+	Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(1));
+
+	/* Configure channel 2 as edge sensitive and rising edge interrupt */
+	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
+	Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(2));
+	Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(2));
+
+	/* Enable interrupt in the NVIC */
+	NVIC_ClearPendingIRQ(PIN_INT0_IRQn);
+	NVIC_EnableIRQ(PIN_INT0_IRQn);
+	NVIC_SetPriority(PIN_INT0_IRQn, 1);
+	NVIC_ClearPendingIRQ(PIN_INT1_IRQn);
+	NVIC_EnableIRQ(PIN_INT1_IRQn);
+	NVIC_SetPriority(PIN_INT1_IRQn, 1);
+	NVIC_ClearPendingIRQ(PIN_INT2_IRQn);
+	NVIC_EnableIRQ(PIN_INT2_IRQn);
+	NVIC_SetPriority(PIN_INT2_IRQn, 1); // INT2 MUST be lower priority than UART irq. 0 and 1 are set to match 2.
+
+	/* LCD setup */
+	Chip_RIT_Init(LPC_RITIMER);
+	DigitalIoPin A0(0, 8, false, true, false), A1(1, 6, false, true, false), A2(1, 8, false, true, false), A3(0, 5, false, true, false), A4(0, 6, false, true, false), A5(0, 7, false, true, false);
+	lcd = new LiquidCrystal(&A0, &A1, &A2, &A3, &A4, &A5);
+	lcd->begin(16,2);
+	lcd->setCursor(0,0);
+
+	/* Systick setup */
+	SysTick_Config(SystemCoreClock / TICKRATE_HZ);
+
+	/* Fan setup */
+	fan = new Fan;
+
+	/* I2C setup */
+	i2c = new I2C;
+	NVIC_DisableIRQ(I2C0_IRQn);
+
+	/* Menu setup */
+	menu = new SimpleMenu;
+
+	IntegerEdit manualMode(lcd, std::string("Set fan speed:"), 0, 100);
+	manualMode.setCallback([](const IntegerEdit& ie) { fan->setFrequency(static_cast<uint16_t>(200 * ie.getValue())); });
+	menu->addItem(new MenuItem(&manualMode));
+
+	IntegerEdit autoMode(lcd, std::string("Set pressure:"), 0, 120);
+	autoMode.setCallback([](const IntegerEdit& ie) {
+		PID pid(225, 2, 0);
+
+		while ( i2c->transaction(i2c_pressure_address, &sensorReadCMD, 1, sensorData, 3) &&
+				ie.getValue() != (pressure_diff = static_cast<int16_t>(sensorData[0] << 8 | sensorData[1]) / 240)) {
+
+			fan->setFrequency(fan->getFrequency() + pid.calculate(ie.getValue(), pressure_diff));
+			/* Incomplete UI */
+			lcd->setCursor(0, 1);
+			lcd->print("%3d", pressure_diff.load());
+		}
+		lcd->setCursor(0, 1);
+		lcd->print("OK!");
+
+		delayMilliseconds(500);
+	});
+	menu->addItem(new MenuItem(&autoMode));
+
+	menu->event(MenuItem::show);
+
+	while(1) {
+		__WFI();
+	}
 }

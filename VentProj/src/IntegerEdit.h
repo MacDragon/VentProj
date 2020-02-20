@@ -11,33 +11,34 @@
 #include "PropertyEdit.h"
 #include "LiquidCrystal.h"
 #include <string>
+#include <functional>
 
 class IntegerEdit: public PropertyEdit {
 public:
-	IntegerEdit(LiquidCrystal *lcd_, std::string editTitle, int lower = 0, int upper = 100, int step = 1);
+	IntegerEdit(LiquidCrystal *lcd_, std::string const& editTitle, int const lowerLimit, int const upperLimit, int const stepSize = 1);
 	virtual ~IntegerEdit();
 	void increment();
 	void decrement();
 	void accept();
 	void cancel();
 	void setFocus(bool focus);
-	bool getFocus();
+	bool getFocus() const;
 	void display();
-	int getValue();
+	int  getValue() const;
 	void setValue(int value);
-	void setCallback( void (*callback)() );
+
+	void setCallback(void (*callback)(const IntegerEdit&));
 private:
 	void save();
-	void displayEditValue();
-	LiquidCrystal *lcd;
-	std::string title;
-	int value;
-	int edit;
+	LiquidCrystal* lcd;
+	std::string const title;
+	int const lowerLimit, upperLimit, stepSize;
+	int value, edit;
 	bool focus;
-	int lower;
-	int upper;
-	int step;
-	void (*callback)();
+
+
+	void (*callback)(const IntegerEdit&);
+
 };
 
 #endif /* INTEGEREDIT_H_ */
