@@ -13,7 +13,7 @@
 #include <cstdio>
 
 /* Defined in main */
-void delayMilliseconds(uint64_t ms);
+void Sleep(unsigned int ms);
 
 class Fan {
 public:
@@ -23,13 +23,9 @@ public:
 	bool setFrequency(uint16_t freq);
 	uint16_t getFrequency();
 
-
-	void abbModBusTest();
-	void modBusTest();
-
 private:
 	ModbusMaster node;
-	static constexpr uint16_t min_freq 	= 1400; // Anything below 1400 will not power up the fan.
+	static constexpr uint16_t min_freq 	= 1400; // Not used, probably not accurate either.
 	static constexpr uint16_t max_freq 	= 20000;
 	static constexpr uint16_t delay 	= 500;
 };

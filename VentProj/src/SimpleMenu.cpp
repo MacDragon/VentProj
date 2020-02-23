@@ -13,19 +13,24 @@ SimpleMenu::~SimpleMenu() {
 	// TODO Auto-generated destructor stub
 }
 
-void SimpleMenu::addItem(MenuItem* item) {
-	items.push_back(item);
+/* Takes a pointer to a Property Edit object and wraps it
+ * in a unique pointer to a Menu Item object.
+ */
+void SimpleMenu::addItem(PropertyEdit* pe) {
+	items.emplace_back(new MenuItem(pe));
 }
 
-void SimpleMenu::event(const MenuItem::menuEvent& e) {
-	if(items.size() <= 0) return;
+void SimpleMenu::event(MenuItem::menuEvent e) {
+	if (items.size() <= 0)
+		return;
 
-	if(!items[position]->event(e)) {
-		if(e == MenuItem::up) position++;
-		else if(e == MenuItem::down) position--;
-
-		if(position < 0) position = items.size() - 1;
-		if(position >= (int) items.size()) position = 0;
+	if (!items[position]->event(e)) {
+		if (e == MenuItem::up && ++position >= static_cast<int>(items.size()))
+			position = 0;
+		else if (e == MenuItem::down && --position < 0)
+			position = items.size() - 1;
+		else if (e == MenuItem::back)
+			position = 0;
 
 		items[position]->event(MenuItem::show);
 	}

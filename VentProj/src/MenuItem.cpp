@@ -7,7 +7,7 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(PropertyEdit* property) : pe{ property } {}
+MenuItem::MenuItem(PropertyEdit* const property) : pe{ property } {}
 
 MenuItem::~MenuItem() {}
 
@@ -17,8 +17,8 @@ bool MenuItem::event(menuEvent e) {
 	switch(e) {
 	case ok:
 		if(pe->getFocus()) {
-			pe->accept();
 			pe->setFocus(false);
+			pe->accept();
 		}
 		else
 			pe->setFocus(true);
@@ -26,8 +26,8 @@ bool MenuItem::event(menuEvent e) {
 
 	case back:
 		if(pe->getFocus()) {
-			pe->cancel();
 			pe->setFocus(false);
+			pe->cancel();
 		}
 		else
 			handled = false;

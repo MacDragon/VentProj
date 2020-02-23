@@ -20,11 +20,11 @@ public:
 		show
 	};
 
-	MenuItem(PropertyEdit* property);
+	MenuItem(PropertyEdit* const property);
 	virtual ~MenuItem();
 	virtual bool event(menuEvent e);
 private:
-	PropertyEdit* pe;
+	PropertyEdit* const pe;
 };
 
 #endif /* MENUITEM_H_ */

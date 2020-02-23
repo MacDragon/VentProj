@@ -8,7 +8,6 @@
 #ifndef DIGITALIOPIN_H_
 #define DIGITALIOPIN_H_
 #include "chip.h"
-#include "board.h"
 
 class DigitalIoPin {
 public:

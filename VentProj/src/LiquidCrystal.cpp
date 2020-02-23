@@ -6,8 +6,6 @@
 #define LOW 0
 #define HIGH 1
 
-
-
 void delayMicroseconds(uint64_t us) {
 	uint64_t compval = us * SystemCoreClock / 1000000;
 	Chip_RIT_Disable(LPC_RITIMER);
@@ -40,21 +38,15 @@ void delayMicroseconds(uint64_t us) {
 
 
 
-
-LiquidCrystal::LiquidCrystal(DigitalIoPin *rs,  DigitalIoPin *enable,
-		DigitalIoPin *d0, DigitalIoPin *d1, DigitalIoPin *d2, DigitalIoPin *d3)
+// const DigitalIoPin&
+// DigitalIoPin&&
+LiquidCrystal::LiquidCrystal(DigitalIoPin&& rs, DigitalIoPin&& enable, DigitalIoPin&& d0, DigitalIoPin&& d1, DigitalIoPin&& d2, DigitalIoPin&& d3)
+: 	rs_pin(std::make_unique<DigitalIoPin>(rs)), enable_pin(std::make_unique<DigitalIoPin>(enable)), data_pins({ std::make_unique<DigitalIoPin>(d0),
+	std::make_unique<DigitalIoPin>(d1), std::make_unique<DigitalIoPin>(d2), std::make_unique<DigitalIoPin>(d3) }),
+	_displayfunction{ LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS }
 {
-	rs_pin = rs;
-	enable_pin = enable;
-
-	data_pins[0] = d0;
-	data_pins[1] = d1;
-	data_pins[2] = d2;
-	data_pins[3] = d3;
-
-	_displayfunction = LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS;
-
 	begin(16, 2); // default to 16x2 display
+	setCursor(0,0);
 }
 
 void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {

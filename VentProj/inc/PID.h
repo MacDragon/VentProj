@@ -8,14 +8,15 @@
 #ifndef PID_H_
 #define PID_H_
 
+template <typename T>
 class PID {
 public:
 	constexpr PID(double const Kp, double const Ki, double const Kd) :
-	Kp{ Kp }, Ki{ Ki }, Kd{ Kd }, sum_of_errors{ 0 }, min{ 0 }, max{ 20000 }, last_error{ 0 } {}
-	virtual ~PID();
+	Kp{ Kp }, Ki{ Ki }, Kd{ Kd }, sum_of_errors{ 0 }, last_error{ 0 } {}
+	virtual ~PID() {}
 
-	double calculate(unsigned int const target, unsigned int const current) {
-		int error = target - current;
+	double calculate(T const target, T const current) {
+		T error = target - current;
 		sum_of_errors += error;
 
 		double P = Kp * error;
@@ -26,11 +27,11 @@ public:
 
 		return P + I + D;
 	}
+
 private:
 	double const Kp, Ki, Kd;
-	double sum_of_errors;
-	unsigned int const  min, max;
-	int last_error;
+	T sum_of_errors;
+	T last_error;
 };
 
 #endif /* PID_H_ */

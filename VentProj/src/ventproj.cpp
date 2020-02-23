@@ -9,74 +9,70 @@
  */
 
 #include <cr_section_macros.h>
-#include <memory>
 #include <atomic>
 #include "board.h"
 
 #include "LiquidCrystal.h"
-#include "IntegerEdit.h"
 #include "SimpleMenu.h"
-#include "LpcUart.h"
+#include "MenuEdit.h"
+#include "ModeEdit.h"
 #include "I2C.h"
 #include "Fan.h"
 #include "PID.h"
 
 #define TICKRATE_HZ (1000)
-static constexpr uint8_t i2c_pressure_address { 0x40 };
-static constexpr uint8_t sensorReadCMD { 0xF1 };
+
+static constexpr uint32_t cancel_time = 2000; // 2000ms
+static constexpr uint32_t debounce_time = 150; // 50ms
+static constexpr uint8_t i2c_pressure_address = 0x40;
+static constexpr uint8_t sensorReadCMD = 0xF1;
 static std::atomic<uint32_t> counter, systicks, last_press;
-static std::atomic<int16_t> pressure_diff;
-static uint8_t sensorData[3];
-static LiquidCrystal* lcd;
 static SimpleMenu* menu;
-static Fan* fan;
-static I2C* i2c;
 
 extern "C" {
 void PIN_INT0_IRQHandler(void) {
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-	if(systicks - last_press > 200) {
-		menu->event(MenuItem::up);
+
+	if(systicks - last_press > debounce_time) {
 		last_press = systicks.load();
+		menu->event(MenuItem::up);
 	}
 }
 
 void PIN_INT1_IRQHandler(void) {
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(1));
-	if(systicks - last_press > 200) {
-		menu->event(MenuItem::down);
+
+	if(systicks - last_press > debounce_time) {
 		last_press = systicks.load();
+		menu->event(MenuItem::down);
 	}
 }
 
 void PIN_INT2_IRQHandler(void) {
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(2));
-	if(systicks - last_press > 200) {
-		menu->event(MenuItem::ok);
+
+	if(systicks - last_press > debounce_time) {
 		last_press = systicks.load();
+		menu->event(MenuItem::ok);
+
 	}
 }
 
 void SysTick_Handler(void) {
-	systicks++;
-	if(counter > 0) counter--;
+	if (++systicks - last_press >= cancel_time) {
+		last_press = systicks.load();
+		menu->event(MenuItem::back);
+	}
+
+	if(counter > 0)
+		--counter;
 }
 }
 
-void Sleep(int ms) {
+void Sleep(unsigned int ms) {
 	counter = ms;
-	while(counter > 0) __WFI();
-}
-
-void delayMilliseconds(uint64_t ms) {
-	uint64_t compval = ms * SystemCoreClock / 1000;
-	Chip_RIT_Disable(LPC_RITIMER);
-	Chip_RIT_SetCompareValue(LPC_RITIMER, compval);
-	Chip_RIT_SetCounter(LPC_RITIMER, 0);
-	Chip_RIT_Enable(LPC_RITIMER);
-	while(!Chip_RIT_GetIntStatus(LPC_RITIMER)) {};
-	Chip_RIT_Disable(LPC_RITIMER);
-	Chip_RIT_ClearIntStatus(LPC_RITIMER);
+	while(counter > 0)
+		__WFI();
 }
 
 uint32_t millis() {
@@ -87,24 +83,22 @@ int main(void) {
 	SystemCoreClockUpdate();
 	Board_Init();
 
-	/* I/O setup */
-	Chip_SWM_MovablePortPinAssign(SWM_SWO_O, 1, 2);
-	LpcUart dbgu{ LpcUartConfig{ LPC_USART0, 115200, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_1, false,
-		LpcPinMap{ 0, 18 }, LpcPinMap{ 0, 13 }, LpcPinMap{-1, -1}, LpcPinMap{-1, -1} } };
+	int16_t pressure_diff = 0;
+	uint8_t sensorData[3];
 
 	/* Button setup - to be replaced by QEI */
-	DigitalIoPin sw0(0, 0, true, true, true);
-	DigitalIoPin sw1(1, 3, true, true, true);
-	DigitalIoPin sw2(0, 9, true, true, true);
+	DigitalIoPin SW0(0, 0, true, true, true);
+	DigitalIoPin SW1(1, 3, true, true, true);
+	DigitalIoPin SW2(0, 9, true, true, true);
 
 	Chip_PININT_Init(LPC_GPIO_PIN_INT);
 	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PININT); /* Enable PININT clock */
 	Chip_SYSCTL_PeriphReset(RESET_PININT); /* Reset the PININT block */
 
 	/* Configure interrupt channels for the DigitalIoPins */
-	Chip_INMUX_PinIntSel(0, 0, 0); // SW1
-	Chip_INMUX_PinIntSel(1, 1, 3); // SW2
-	Chip_INMUX_PinIntSel(2, 0, 9); // SW3
+	Chip_INMUX_PinIntSel(0, 0, 0); // SW0
+	Chip_INMUX_PinIntSel(1, 1, 3); // SW1
+	Chip_INMUX_PinIntSel(2, 0, 9); // SW2
 
 	/* Configure channel 0 as edge sensitive and rising edge interrupt */
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
@@ -124,60 +118,79 @@ int main(void) {
 	/* Enable interrupt in the NVIC */
 	NVIC_ClearPendingIRQ(PIN_INT0_IRQn);
 	NVIC_EnableIRQ(PIN_INT0_IRQn);
-	NVIC_SetPriority(PIN_INT0_IRQn, 1);
 	NVIC_ClearPendingIRQ(PIN_INT1_IRQn);
 	NVIC_EnableIRQ(PIN_INT1_IRQn);
-	NVIC_SetPriority(PIN_INT1_IRQn, 1);
 	NVIC_ClearPendingIRQ(PIN_INT2_IRQn);
 	NVIC_EnableIRQ(PIN_INT2_IRQn);
-	NVIC_SetPriority(PIN_INT2_IRQn, 1); // INT2 MUST be lower priority than UART irq. 0 and 1 are set to match 2.
 
 	/* LCD setup */
 	Chip_RIT_Init(LPC_RITIMER);
-	DigitalIoPin A0(0, 8, false, true, false), A1(1, 6, false, true, false), A2(1, 8, false, true, false), A3(0, 5, false, true, false), A4(0, 6, false, true, false), A5(0, 7, false, true, false);
-	lcd = new LiquidCrystal(&A0, &A1, &A2, &A3, &A4, &A5);
-	lcd->begin(16,2);
-	lcd->setCursor(0,0);
+	LiquidCrystal lcd {
+		{ 0, 8, false, true, false }, { 1, 6, false, true, false }, { 1, 8, false, true, false },
+		{ 0, 5, false, true, false }, { 0, 6, false, true, false }, { 0, 7, false, true, false }
+	};
+
+	/* Menu setup */
+	menu = new SimpleMenu;
+
+	MenuEdit mainMenu(&lcd, std::string("Pressure:"), std::string("Fan speed:"), std::string("Working..."));
+	menu->addItem(&mainMenu);
+
+	ModeEdit manualMenu(&lcd, std::string("Manual Mode"), std::string("Set Fan Speed:"), 0, 100, ModeEdit::Manual);
+	menu->addItem(&manualMenu);
+
+	ModeEdit autoMenu(&lcd, std::string("Auto Mode"), std::string("Set Pressure:"), 0, 120, ModeEdit::Automatic);
+	menu->addItem(&autoMenu);
 
 	/* Systick setup */
 	SysTick_Config(SystemCoreClock / TICKRATE_HZ);
 
 	/* Fan setup */
-	fan = new Fan;
+	Fan fan;
 
 	/* I2C setup */
-	i2c = new I2C;
+	I2C i2c;
 	NVIC_DisableIRQ(I2C0_IRQn);
 
-	/* Menu setup */
-	menu = new SimpleMenu;
-
-	IntegerEdit manualMode(lcd, std::string("Set fan speed:"), 0, 100);
-	manualMode.setCallback([](const IntegerEdit& ie) { fan->setFrequency(static_cast<uint16_t>(200 * ie.getValue())); });
-	menu->addItem(new MenuItem(&manualMode));
-
-	IntegerEdit autoMode(lcd, std::string("Set pressure:"), 0, 120);
-	autoMode.setCallback([](const IntegerEdit& ie) {
-		PID pid(225, 2, 0);
-
-		while ( i2c->transaction(i2c_pressure_address, &sensorReadCMD, 1, sensorData, 3) &&
-				ie.getValue() != (pressure_diff = static_cast<int16_t>(sensorData[0] << 8 | sensorData[1]) / 240)) {
-
-			fan->setFrequency(fan->getFrequency() + pid.calculate(ie.getValue(), pressure_diff));
-			/* Incomplete UI */
-			lcd->setCursor(0, 1);
-			lcd->print("%3d", pressure_diff.load());
-		}
-		lcd->setCursor(0, 1);
-		lcd->print("OK!");
-
-		delayMilliseconds(500);
-	});
-	menu->addItem(new MenuItem(&autoMode));
-
-	menu->event(MenuItem::show);
+	/* PID setup */
+	PID<int> pid(225, 2, 0);
 
 	while(1) {
-		__WFI();
+		if (i2c.transaction(i2c_pressure_address, &sensorReadCMD, 1, sensorData, 3))
+			pressure_diff = static_cast<int16_t>(sensorData[0] << 8 | sensorData[1]) / 240;
+
+		switch(ModeEdit::fanMode) {
+		case ModeEdit::Manual:
+			if (fan.getFrequency() / 200 != manualMenu.getValue())
+				fan.setFrequency(200 * manualMenu.getValue());
+
+			/* There is a problem with these checks for now where the fanMode might change
+			 * between the start of the scope and this if check. It leads to old values
+			 * being written over the value just entered in the interrupt. */
+			if (!autoMenu.getFocus())
+				autoMenu.setValue(pressure_diff); // Keep autoMenu updated with current pressure
+			break;
+
+		case ModeEdit::Automatic:
+			if (pressure_diff != autoMenu.getValue())
+				fan.setFrequency(fan.getFrequency() + pid.calculate(autoMenu.getValue(), pressure_diff));
+
+			if (!manualMenu.getFocus())
+				manualMenu.setValue(fan.getFrequency() / 200); // Keep manualMenu updated with current fan speed
+			break;
+
+		case ModeEdit::Startup:
+			/* Could do something here. The system boots up in this state */
+			break;
+		}
+
+		/* Update main menu with values from manual and auto menus
+		 * current and target values passed to the menu so that it
+		 * can keep an error counter and update the UI when things
+		 * are taking too long. */
+		mainMenu.setRow1Values(pressure_diff, autoMenu.getValue());
+		mainMenu.setRow2Values(fan.getFrequency() / 400, manualMenu.getValue());
+		Sleep(100);
+
 	}
 }

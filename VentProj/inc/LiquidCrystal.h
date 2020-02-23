@@ -5,6 +5,7 @@
 #include <cstddef>
 #include <string>
 #include "chip.h"
+#include <memory>
 #include "DigitalIoPin.h"
 
 // commands
@@ -48,8 +49,8 @@
 class LiquidCrystal {
 public:
 
-  LiquidCrystal(DigitalIoPin *rs,  DigitalIoPin *enable,
-			    DigitalIoPin *d0, DigitalIoPin *d1, DigitalIoPin *d2, DigitalIoPin *d3);
+  LiquidCrystal(DigitalIoPin&& rs, DigitalIoPin&& enable,
+		  DigitalIoPin&& d0, DigitalIoPin&& d1, DigitalIoPin&& d2, DigitalIoPin&& d3);
 
   void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
 
@@ -93,9 +94,9 @@ private:
   void write4bits(uint8_t);
   void pulseEnable();
 
-  DigitalIoPin *rs_pin; // LOW(false): command.  HIGH(true): character.
-  DigitalIoPin *enable_pin; // activated by a HIGH pulse.
-  DigitalIoPin *data_pins[4];
+  std::unique_ptr<DigitalIoPin> rs_pin; 	// LOW(false): command.  HIGH(true): character.
+  std::unique_ptr<DigitalIoPin> enable_pin; // activated by a HIGH pulse.
+  std::unique_ptr<DigitalIoPin> data_pins[4];
 
   uint8_t _displayfunction;
   uint8_t _displaycontrol;
