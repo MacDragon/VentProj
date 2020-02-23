@@ -8,6 +8,10 @@
 #ifndef PID_H_
 #define PID_H_
 
+/* This is templated because in most cases you would probably want
+ * the PID controller to process floating point numbers. However,
+ * in this project we will only ever be passing integers to the PID controller. */
+
 template <typename T>
 class PID {
 public:

@@ -23,7 +23,7 @@
 #define TICKRATE_HZ (1000)
 
 static constexpr uint32_t cancel_time = 2000; // 2000ms
-static constexpr uint32_t debounce_time = 150; // 50ms
+static constexpr uint32_t debounce_time = 150; // 150ms. Lazy debouncing.
 static constexpr uint8_t i2c_pressure_address = 0x40;
 static constexpr uint8_t sensorReadCMD = 0xF1;
 static std::atomic<uint32_t> counter, systicks, last_press;
@@ -141,6 +141,8 @@ int main(void) {
 
 	ModeEdit autoMenu(&lcd, std::string("Auto Mode"), std::string("Set Pressure:"), 0, 120, ModeEdit::Automatic);
 	menu->addItem(&autoMenu);
+
+	menu->event(MenuItem::show);
 
 	/* Systick setup */
 	SysTick_Config(SystemCoreClock / TICKRATE_HZ);
