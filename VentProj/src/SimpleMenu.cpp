@@ -14,13 +14,16 @@ SimpleMenu::~SimpleMenu() {
 }
 
 /* Takes a pointer to a Property Edit object and wraps it
- * in a unique pointer to a Menu Item object.
- */
+ * in a unique pointer to a Menu Item object. Kind of
+ * pointless since it depends on the PropertyEdit object
+ * having the same lifetime as the SimpleMenu object (it does). */
 void SimpleMenu::addItem(PropertyEdit* pe) {
 	items.emplace_back(new MenuItem(pe));
 }
 
 void SimpleMenu::event(MenuItem::menuEvent e) {
+	const std::lock_guard<Imutex> lock(mutex);
+
 	if (items.size() <= 0)
 		return;
 

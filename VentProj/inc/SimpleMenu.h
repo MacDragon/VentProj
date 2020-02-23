@@ -11,6 +11,7 @@
 #include <memory>
 #include "PropertyEdit.h"
 #include "MenuItem.h"
+#include "Imutex.h"
 
 class SimpleMenu {
 public:
@@ -22,6 +23,7 @@ public:
 private:
 	std::vector<std::unique_ptr<MenuItem>> items;
 	int position;
+	Imutex mutex;
 };
 
 #endif /* SIMPLEMENU_H_ */

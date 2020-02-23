@@ -125,6 +125,7 @@ int main(void) {
 
 	/* LCD setup */
 	Chip_RIT_Init(LPC_RITIMER);
+
 	LiquidCrystal lcd {
 		{ 0, 8, false, true, false }, { 1, 6, false, true, false }, { 1, 8, false, true, false },
 		{ 0, 5, false, true, false }, { 0, 6, false, true, false }, { 0, 7, false, true, false }
@@ -141,8 +142,6 @@ int main(void) {
 
 	ModeEdit autoMenu(&lcd, std::string("Auto Mode"), std::string("Set Pressure:"), 0, 120, ModeEdit::Automatic);
 	menu->addItem(&autoMenu);
-
-	menu->event(MenuItem::show);
 
 	/* Systick setup */
 	SysTick_Config(SystemCoreClock / TICKRATE_HZ);
@@ -187,12 +186,14 @@ int main(void) {
 		}
 
 		/* Update main menu with values from manual and auto menus
-		 * current and target values passed to the menu so that it
+		 *
+		 * Current and target values passed to the menu so that it
 		 * can keep an error counter and update the UI when things
 		 * are taking too long. */
 		mainMenu.setRow1Values(pressure_diff, autoMenu.getValue());
 		mainMenu.setRow2Values(fan.getFrequency() / 400, manualMenu.getValue());
-		Sleep(100);
+		menu->event(MenuItem::show);
+		Sleep(500);
 
 	}
 }
