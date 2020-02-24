@@ -35,7 +35,7 @@ void PIN_INT0_IRQHandler(void) {
 
 	if(systicks - last_press > debounce_time) {
 		last_press = systicks.load();
-		menu->event(MenuItem::up);
+		if ( menu != nullptr ) menu->event(MenuItem::up);
 	}
 }
 
@@ -44,7 +44,7 @@ void PIN_INT1_IRQHandler(void) {
 
 	if(systicks - last_press > debounce_time) {
 		last_press = systicks.load();
-		menu->event(MenuItem::down);
+		if ( menu != nullptr ) menu->event(MenuItem::down);
 	}
 }
 
@@ -53,7 +53,7 @@ void PIN_INT2_IRQHandler(void) {
 
 	if(systicks - last_press > debounce_time) {
 		last_press = systicks.load();
-		menu->event(MenuItem::ok);
+		if ( menu != nullptr ) menu->event(MenuItem::ok);
 
 	}
 }
@@ -61,7 +61,7 @@ void PIN_INT2_IRQHandler(void) {
 void SysTick_Handler(void) {
 	if (++systicks - last_press >= cancel_time) {
 		last_press = systicks.load();
-		menu->event(MenuItem::back);
+		if ( menu != nullptr ) menu->event(MenuItem::back);
 	}
 
 	if(counter > 0)
