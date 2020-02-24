@@ -30,3 +30,12 @@
 *.exe
 *.out
 *.app
+
+# macos files
+.DS_Store
+
+#debug files
+.axf
+.map
+
+Debug
