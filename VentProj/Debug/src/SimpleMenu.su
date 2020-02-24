@@ -1,6 +1,0 @@
-SimpleMenu.cpp:12:1:virtual SimpleMenu::~SimpleMenu()	16	static
-SimpleMenu.cpp:12:1:SimpleMenu::~SimpleMenu()	16	static
-SimpleMenu.cpp:10:1:SimpleMenu::SimpleMenu()	8	static
-SimpleMenu.cpp:23:6:void SimpleMenu::event(MenuItem::menuEvent)	16	static
-vector.tcc:413:7:) [with _Args = {MenuItem*}; _Tp = std::unique_ptr<MenuItem>; _Alloc = std::allocator<std::unique_ptr<MenuItem> >]	48	static
-SimpleMenu.cpp:19:6:void SimpleMenu::addItem(PropertyEdit*)	24	static
