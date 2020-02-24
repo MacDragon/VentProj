@@ -25,7 +25,7 @@ public:
 
 private:
 	ModbusMaster node;
-	static constexpr uint16_t min_freq 	= 1400; // Not used, probably not accurate either.
+	static constexpr uint16_t min_freq 	= 0; // Not used, probably not accurate either.
 	static constexpr uint16_t max_freq 	= 20000;
 	static constexpr uint16_t delay 	= 500;
 };

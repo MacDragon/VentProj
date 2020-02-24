@@ -40,9 +40,9 @@ void delayMicroseconds(uint64_t us) {
 
 // const DigitalIoPin&
 // DigitalIoPin&&
-LiquidCrystal::LiquidCrystal(DigitalIoPin&& rs, DigitalIoPin&& enable, DigitalIoPin&& d0, DigitalIoPin&& d1, DigitalIoPin&& d2, DigitalIoPin&& d3)
-: 	rs_pin(std::make_unique<DigitalIoPin>(rs)), enable_pin(std::make_unique<DigitalIoPin>(enable)), data_pins({ std::make_unique<DigitalIoPin>(d0),
-	std::make_unique<DigitalIoPin>(d1), std::make_unique<DigitalIoPin>(d2), std::make_unique<DigitalIoPin>(d3) }),
+LiquidCrystal::LiquidCrystal(std::unique_ptr<DigitalIoPin>&& rs, std::unique_ptr<DigitalIoPin>&& enable, std::unique_ptr<DigitalIoPin>&& d0,
+		  std::unique_ptr<DigitalIoPin>&& d1, std::unique_ptr<DigitalIoPin>&& d2, std::unique_ptr<DigitalIoPin>&& d3)
+: 	rs_pin{ std::move(rs) }, enable_pin{ std::move(enable) }, data_pins{ std::move(d0), std::move(d1), std::move(d2), std::move(d3) },
 	_displayfunction{ LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS }
 {
 	begin(16, 2); // default to 16x2 display

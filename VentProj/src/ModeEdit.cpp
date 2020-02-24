@@ -8,7 +8,7 @@
 #include <ModeEdit.h>
 #include <cstdio>
 
-std::atomic<ModeEdit::Mode> ModeEdit::fanMode{ Startup };
+std::atomic<ModeEdit::Mode> ModeEdit::fanMode{ Automatic };
 
 ModeEdit::ModeEdit(LiquidCrystal* lcd, std::string const& title, std::string const& subTitle, int const lowerLimit, int const upperLimit, Mode const mode) :
 lcd{ lcd }, title{ title }, subTitle{ subTitle },

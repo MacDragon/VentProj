@@ -32,6 +32,10 @@ public:
 		return P + I + D;
 	}
 
+	void reset(void) {
+		sum_of_errors = last_error = 0;
+	}
+
 private:
 	double const Kp, Ki, Kd;
 	T sum_of_errors;

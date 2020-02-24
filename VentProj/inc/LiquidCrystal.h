@@ -49,8 +49,8 @@
 class LiquidCrystal {
 public:
 
-  LiquidCrystal(DigitalIoPin&& rs, DigitalIoPin&& enable,
-		  DigitalIoPin&& d0, DigitalIoPin&& d1, DigitalIoPin&& d2, DigitalIoPin&& d3);
+  LiquidCrystal(std::unique_ptr<DigitalIoPin>&& rs, std::unique_ptr<DigitalIoPin>&& enable, std::unique_ptr<DigitalIoPin>&& d0,
+		  std::unique_ptr<DigitalIoPin>&& d1, std::unique_ptr<DigitalIoPin>&& d2, std::unique_ptr<DigitalIoPin>&& d3);
 
   void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
 

@@ -31,6 +31,8 @@ bool Fan::setFrequency(uint16_t freq) {
 
 	if (freq > max_freq)
 		freq = max_freq;
+	else if (freq < min_freq)
+		freq = min_freq;
 
 	node.writeSingleRegister(1, freq);
 

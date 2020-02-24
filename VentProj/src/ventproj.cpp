@@ -127,8 +127,9 @@ int main(void) {
 	Chip_RIT_Init(LPC_RITIMER);
 
 	LiquidCrystal lcd {
-		{ 0, 8, false, true, false }, { 1, 6, false, true, false }, { 1, 8, false, true, false },
-		{ 0, 5, false, true, false }, { 0, 6, false, true, false }, { 0, 7, false, true, false }
+		std::make_unique<DigitalIoPin>( 0, 8, false, true, false ), std::make_unique<DigitalIoPin>( 1, 6, false, true, false ),
+		std::make_unique<DigitalIoPin>( 1, 8, false, true, false ), std::make_unique<DigitalIoPin>( 0, 5, false, true, false ),
+		std::make_unique<DigitalIoPin>( 0, 6, false, true, false ), std::make_unique<DigitalIoPin>( 0, 7, false, true, false )
 	};
 
 	/* Menu setup */
@@ -140,7 +141,7 @@ int main(void) {
 	ModeEdit manualMenu(&lcd, std::string("Manual Mode"), std::string("Set Fan Speed:"), 0, 100, ModeEdit::Manual);
 	menu->addItem(&manualMenu);
 
-	ModeEdit autoMenu(&lcd, std::string("Auto Mode"), std::string("Set Pressure:"), 0, 120, ModeEdit::Automatic);
+	ModeEdit autoMenu(&lcd, std::string("Auto Mode"), std::string("Set Pressure:"), 30, 120, ModeEdit::Automatic);
 	menu->addItem(&autoMenu);
 
 	/* Systick setup */
@@ -154,15 +155,17 @@ int main(void) {
 	NVIC_DisableIRQ(I2C0_IRQn);
 
 	/* PID setup */
-	PID<int> pid(225, 2, 0);
+	PID<int> pid(255, 1.85, 0);
 
 	while(1) {
+		auto fanFreq = fan.getFrequency();
+
 		if (i2c.transaction(i2c_pressure_address, &sensorReadCMD, 1, sensorData, 3))
 			pressure_diff = static_cast<int16_t>(sensorData[0] << 8 | sensorData[1]) / 240;
 
 		switch(ModeEdit::fanMode) {
 		case ModeEdit::Manual:
-			if (fan.getFrequency() / 200 != manualMenu.getValue())
+			if (fanFreq / 200 != manualMenu.getValue())
 				fan.setFrequency(200 * manualMenu.getValue());
 
 			/* There is a problem with these checks for now where the fanMode might change
@@ -173,11 +176,11 @@ int main(void) {
 			break;
 
 		case ModeEdit::Automatic:
-			if (pressure_diff != autoMenu.getValue())
-				fan.setFrequency(fan.getFrequency() + pid.calculate(autoMenu.getValue(), pressure_diff));
+			if (abs(pressure_diff - autoMenu.getValue()) > 1)
+				fan.setFrequency( fanFreq + pid.calculate(autoMenu.getValue(), pressure_diff) );
 
 			if (!manualMenu.getFocus())
-				manualMenu.setValue(fan.getFrequency() / 200); // Keep manualMenu updated with current fan speed
+				manualMenu.setValue(fanFreq / 200); // Keep manualMenu updated with current fan speed
 			break;
 
 		case ModeEdit::Startup:
@@ -191,9 +194,9 @@ int main(void) {
 		 * can keep an error counter and update the UI when things
 		 * are taking too long. */
 		mainMenu.setRow1Values(pressure_diff, autoMenu.getValue());
-		mainMenu.setRow2Values(fan.getFrequency() / 400, manualMenu.getValue());
+		mainMenu.setRow2Values(fanFreq / 400, manualMenu.getValue());
 		menu->event(MenuItem::show);
-		Sleep(500);
+		Sleep(200);
 
 	}
 }
