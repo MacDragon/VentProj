@@ -19,6 +19,7 @@
 #include "I2C.h"
 #include "Fan.h"
 #include "PID.h"
+#include "PIO.h"
 
 #define TICKRATE_HZ (1000)
 
@@ -87,18 +88,18 @@ int main(void) {
 	uint8_t sensorData[3];
 
 	/* Button setup - to be replaced by QEI */
-	DigitalIoPin SW0(0, 0, true, true, true);
-	DigitalIoPin SW1(1, 3, true, true, true);
-	DigitalIoPin SW2(0, 9, true, true, true);
+	DigitalIoPin SW0(PD7_Port, PD7_Pin, true, true, true);
+	DigitalIoPin SW1(PD6_Port, PD6_Pin, true, true, true);
+	DigitalIoPin SW2(PD3_Port, PD3_Port, true, true, true);
 
 	Chip_PININT_Init(LPC_GPIO_PIN_INT);
 	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PININT); /* Enable PININT clock */
 	Chip_SYSCTL_PeriphReset(RESET_PININT); /* Reset the PININT block */
 
 	/* Configure interrupt channels for the DigitalIoPins */
-	Chip_INMUX_PinIntSel(0, 0, 0); // SW0
-	Chip_INMUX_PinIntSel(1, 1, 3); // SW1
-	Chip_INMUX_PinIntSel(2, 0, 9); // SW2
+	Chip_INMUX_PinIntSel(0, PD7_Port, PD7_Pin); // SW0
+	Chip_INMUX_PinIntSel(1, PD6_Port, PD6_Pin); // SW1
+	Chip_INMUX_PinIntSel(2, PD3_Port, PD3_Port); // SW2
 
 	/* Configure channel 0 as edge sensitive and rising edge interrupt */
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
@@ -127,9 +128,12 @@ int main(void) {
 	Chip_RIT_Init(LPC_RITIMER);
 
 	LiquidCrystal lcd {
-		std::make_unique<DigitalIoPin>( 0, 8, false, true, false ), std::make_unique<DigitalIoPin>( 1, 6, false, true, false ),
-		std::make_unique<DigitalIoPin>( 1, 8, false, true, false ), std::make_unique<DigitalIoPin>( 0, 5, false, true, false ),
-		std::make_unique<DigitalIoPin>( 0, 6, false, true, false ), std::make_unique<DigitalIoPin>( 0, 7, false, true, false )
+		std::make_unique<DigitalIoPin>( PA0_Port, PA0_Pin, false, true, false ),
+		std::make_unique<DigitalIoPin>( PA1_Port, PA1_Pin, false, true, false ),
+		std::make_unique<DigitalIoPin>( PA2_Port, PA1_Pin, false, true, false ),
+		std::make_unique<DigitalIoPin>( PA3_Port, PA3_Pin, false, true, false ),
+		std::make_unique<DigitalIoPin>( PA4_Port, PA4_Port, false, true, false ),
+		std::make_unique<DigitalIoPin>( PA5_Port, PA5_Port, false, true, false )
 	};
 
 	/* Menu setup */
