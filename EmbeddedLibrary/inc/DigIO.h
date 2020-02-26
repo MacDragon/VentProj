@@ -24,7 +24,7 @@ public:
 	virtual ~DigitalIoPin();
 
 	/* These should be pretty appropriate to inline */
-	constexpr bool read() const {
+	/* constexpr */ bool read() const {
 		return static_cast<bool>(LPC_GPIO->B[port][pin]);
 	}
 

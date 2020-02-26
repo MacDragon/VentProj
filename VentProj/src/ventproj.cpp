@@ -90,7 +90,7 @@ int main(void) {
 	/* Button setup - to be replaced by QEI */
 	DigitalIoPin SW0(PD7_Port, PD7_Pin, true, true, true);
 	DigitalIoPin SW1(PD6_Port, PD6_Pin, true, true, true);
-	DigitalIoPin SW2(PD3_Port, PD3_Port, true, true, true);
+	DigitalIoPin SW2(PD3_Port, PD3_Pin, true, true, true);
 
 	Chip_PININT_Init(LPC_GPIO_PIN_INT);
 	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PININT); /* Enable PININT clock */
@@ -130,10 +130,10 @@ int main(void) {
 	LiquidCrystal lcd {
 		std::make_unique<DigitalIoPin>( PA0_Port, PA0_Pin, false, true, false ),
 		std::make_unique<DigitalIoPin>( PA1_Port, PA1_Pin, false, true, false ),
-		std::make_unique<DigitalIoPin>( PA2_Port, PA1_Pin, false, true, false ),
+		std::make_unique<DigitalIoPin>( PA2_Port, PA2_Pin, false, true, false ),
 		std::make_unique<DigitalIoPin>( PA3_Port, PA3_Pin, false, true, false ),
-		std::make_unique<DigitalIoPin>( PA4_Port, PA4_Port, false, true, false ),
-		std::make_unique<DigitalIoPin>( PA5_Port, PA5_Port, false, true, false )
+		std::make_unique<DigitalIoPin>( PA4_Port, PA4_Pin, false, true, false ),
+		std::make_unique<DigitalIoPin>( PA5_Port, PA5_Pin, false, true, false )
 	};
 
 	/* Menu setup */
