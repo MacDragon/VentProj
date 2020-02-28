@@ -69,7 +69,7 @@ QEI::QEI( LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(max
 
 		Chip_GPIO_SetPinDIRInput(LPC_GPIO, A.port, A.pin);
 		Chip_GPIO_SetPinDIRInput(LPC_GPIO, B.port, B.pin);
-		//		Chip_GPIO_SetPinDIRInput(LPC_GPIO, IDX.port, IDX.pin); // not using index signal.
+//		Chip_GPIO_SetPinDIRInput(LPC_GPIO, IDX.port, IDX.pin); // not using index signal.
 
 		Chip_IOCON_PinMuxSet(LPC_IOCON, A.port, A.pin, IOCON_DIGMODE_EN | IOCON_MODE_PULLUP);
 		Chip_IOCON_PinMuxSet(LPC_IOCON, B.port, B.pin, IOCON_DIGMODE_EN | IOCON_MODE_PULLUP);
@@ -77,6 +77,15 @@ QEI::QEI( LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(max
 
 		// max size of int16, so that can cast as a signed short int and have counter clockwise values show as negative
 		LPC_QEI->MAXPOS=65535;
+
+//		LPC_QEI->IE = 0b1;
+		LPC_QEI->IES = 1 << 5;
+
+
+		//		NVIC_ClearPendingIRQ(QEI_IRQn);
+
+		//		NVIC_SetPriority((IRQn_Type) QEI_IRQn, 2);
+//		NVIC_EnableIRQ((IRQn_Type) QEI_IRQn);
 
 		/* we're using in 2x mode not 4x now, 4x accuracy only makes harder to read out knob. */
 //		LPC_QEI->CONF |= (1<<2);
@@ -125,6 +134,8 @@ int QEI::read() {
 
 	// reset position to 0, so that next read will be relative to new position.
 	LPC_QEI->CON=1;
+    LPC_QEI->CLR=0xFFFF;
+
 	return posupd; // return how much change occurred since last call
 }
 

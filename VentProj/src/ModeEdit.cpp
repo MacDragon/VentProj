@@ -12,7 +12,7 @@ std::atomic<ModeEdit::Mode> ModeEdit::fanMode{ Automatic };
 
 ModeEdit::ModeEdit(LiquidCrystal* lcd, int const lowerLimit, int const upperLimit, Mode const mode) :
 lcd{ lcd }, bar{ BarGraph(lcd, 16, upperLimit-lowerLimit, false) }, lowerLimit{ lowerLimit }, upperLimit{ upperLimit }, value{ lowerLimit }, edit{ lowerLimit },
-focus{ false }, mode{ mode }, ErrCount{ millis() }  {
+focus{ false }, mode{ mode }, ErrTime{ millis() }  {
 
 	switch ( mode ) {
 	case Manual :
@@ -64,6 +64,7 @@ void ModeEdit::change(int amount) {
 
 void ModeEdit::accept() {
 	value = edit;
+	ErrTime  = millis();
 }
 
 void ModeEdit::cancel() {
@@ -90,11 +91,17 @@ void ModeEdit::display() {
 		lcd->setCursor(0, 1);
 		bar.draw(edit-lowerLimit);
 	} else {
-		lcd->print("%-9s %3d %s", title.c_str(), value, editUnit.c_str());
+		if ( millis() - ErrTime > error_threshold )
+		{
+			lcd->print("%-9s %3d %s", "Set Fail:", value, editUnit.c_str());
+		} else
+			lcd->print("%-9s %3d %s", title.c_str(), value, editUnit.c_str());
 		lcd->setCursor(0, 1);
 		// second display value
-	//	lcd->print("%-9s%3d Pa", (millis() - ErrCount > error_threshold) ? row2Text.c_str() : errText.c_str(), row2value);
-		lcd->print("%-10s%3d %s", dispTitle.c_str(), value2, dispUnit.c_str());
+
+
+
+			lcd->print("%-10s%3d %s", dispTitle.c_str(), value2, dispUnit.c_str());
 	}
 
 }
@@ -104,13 +111,16 @@ int ModeEdit::getValue() const {
 }
 void ModeEdit::setValue(int const value) {
 	this->value = this->edit = value;
-	if ( mode == Automatic )
-		if (abs(value2-value) > 1)
-			ErrCount = millis();
 }
 
 void ModeEdit::setDispValue2(const int value) {
 	this->value2 = value;
+	if ( mode == Automatic )
+	{
+		if (abs(this->value-value) <= 2)
+			ErrTime = millis();
+	}
+	else ErrTime = millis();
 }
 
 

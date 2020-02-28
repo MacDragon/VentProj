@@ -21,7 +21,7 @@
 #include "PIO.h"
 #include "QEI.h"
 
-#define NOHW
+//#define NOHW
 
 #define TICKRATE_HZ (1000)
 
@@ -30,7 +30,8 @@ static constexpr uint32_t debounce_time = 100; // 150ms. Lazy debouncing.
 static constexpr uint8_t i2c_pressure_address = 0x40;
 static constexpr uint8_t sensorReadCMD = 0xF1;
 static std::atomic<uint32_t> counter, systicks, last_press;
-static SimpleMenu* menu;
+static SimpleMenu* menu = nullptr;
+static QEI* qei = nullptr;
 
 extern "C" {
 void PIN_INT0_IRQHandler(void) {
@@ -61,10 +62,31 @@ void PIN_INT2_IRQHandler(void) {
 	}
 }
 
+void QEI_IRQHandler(void){
+/*	if ( qei != nullptr ){
+		int qeichange = qei->read();
+		if ( qeichange != 0 ){
+			last_press = systicks.load();
+			for ( int i=0;i<abs(qeichange);i++)
+				menu->event(MenuItem::change, qeichange);
+		}
+	} */
+}
+
 void SysTick_Handler(void) {
 	if (++systicks - last_press >= cancel_time) {
 		last_press = systicks.load();
 		if ( menu != nullptr ) menu->event(MenuItem::back, 0);
+	}
+
+	if (systicks % 10 == 1 && qei != nullptr ) // check knob readings
+	{
+		int qeichange = qei->read();
+		if ( qeichange != 0 ){
+			last_press = systicks.load();
+			for ( int i=0;i<abs(qeichange);i++)
+				menu->event(MenuItem::change, qeichange);
+		}
 	}
 
 	if(counter > 0)
@@ -86,6 +108,10 @@ int main(void) {
 	SystemCoreClockUpdate();
 	Board_Init();
 
+	/* Systick setup */
+	SysTick_Config(SystemCoreClock / TICKRATE_HZ);
+
+
 	int16_t pressure_diff = 0;
 	uint8_t sensorData[3];
 
@@ -103,7 +129,7 @@ int main(void) {
 	Chip_INMUX_PinIntSel(1, PD6_Port, PD6_Pin); // SW1
 	Chip_INMUX_PinIntSel(2, PD3_Port, PD3_Pin); // SW2
 
-	QEI qei(LpcPinMap {PD4_Port, PD4_Pin}, LpcPinMap {PD5_Port, PD5_Pin }, 3);
+	qei = new QEI(LpcPinMap {PD4_Port, PD4_Pin}, LpcPinMap {PD5_Port, PD5_Pin }, 3);
 
 	/* Configure channel 0 as edge sensitive and rising edge interrupt */
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
@@ -140,10 +166,11 @@ int main(void) {
 		std::make_unique<DigitalIoPin>( PA5_Port, PA5_Pin, false, true, false )
 	};
 
+	lcd.clear();
+	lcd.setCursor(0, 0);
+	lcd.print("Starting up...");
+
 	/* Menu setup */
-
-
-
 
 	menu = new SimpleMenu;
 
@@ -152,9 +179,6 @@ int main(void) {
 
 	ModeEdit manualEdit(&lcd, 0, 100, ModeEdit::Manual);
 	menu->addItem(&manualEdit);
-
-	/* Systick setup */
-	SysTick_Config(SystemCoreClock / TICKRATE_HZ);
 
 	/* Fan setup */
 #ifndef NOHW
@@ -167,12 +191,9 @@ int main(void) {
 
 	/* PID setup */
 	PID<int> pid(255, 1.85, 0);
-
-	uint32_t mainloop = 0;
+//	PID<int> pid(255, 0, 1.85);
 
 	while(1) {
-		if ( mainloop % 20 == 1)
-		{
 #ifndef NOHW
 			auto fanFreq = fan.getFrequency();
 
@@ -208,6 +229,7 @@ int main(void) {
 
 			case ModeEdit::Startup:
 				/* Could do something here. The system boots up in this state */
+
 				break;
 			}
 
@@ -221,16 +243,6 @@ int main(void) {
 			manualEdit.setDispValue2(pressure_diff);
 
 			menu->event(MenuItem::show);
-
-		}
-
-		int qeichange = qei.read();
-		if ( qeichange != 0 ){
-			last_press = systicks.load();
-			for ( int i=0;i<abs(qeichange);i++)
-				menu->event(MenuItem::change, qeichange);
-		}
-		mainloop++;
-		Sleep(10);
+		Sleep(100);
 	}
 }

@@ -51,7 +51,7 @@ private:
 	int value, edit, value2;
 	bool focus;
 	Mode const mode;
-	unsigned int ErrCount;
+	unsigned int ErrTime;
 	static constexpr unsigned int error_threshold = 5000; // 5 seconds
 };
 
