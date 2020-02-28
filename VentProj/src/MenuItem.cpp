@@ -17,13 +17,13 @@ bool MenuItem::event(menuEvent e, int amount) {
 	switch(e) {
 	case ok:
 		// do nothing, ok is not used to move between items not start edit.
-		handled = false;
-/*		if(pe->getFocus()) {
+
+		if(pe->getFocus()) {
 			pe->setFocus(false);
 			pe->accept();
 		}
 		else
-			pe->setFocus(true); */
+			handled = false;
 		break;
 
 	case back:

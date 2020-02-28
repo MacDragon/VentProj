@@ -192,7 +192,9 @@ int main(void) {
 				 * between the start of the scope and this if check. It leads to old values
 				 * being written over the value just entered in the interrupt. */
 //				if (!autoEdit.getFocus())
-//					autoEdit.setValue(pressure_diff); // Keep autoMenu updated with current pressure
+				if ( pressure_diff >= 30 )
+					autoEdit.setValue(pressure_diff); // Keep autoMenu updated with current pressure
+				else autoEdit.setValue(30);
 				break;
 
 			case ModeEdit::Automatic:
@@ -201,7 +203,7 @@ int main(void) {
 					fan.setFrequency( fanFreq + pid.calculate(autoEdit.getValue(), pressure_diff) );
 #endif
 //				if (!manualEdit.getFocus())
-//					manualEdit.setValue(fanFreq / 200); // Keep manualMenu updated with current fan speed
+					manualEdit.setValue(fanFreq / 200); // Keep manualMenu updated with current fan speed
 				break;
 
 			case ModeEdit::Startup:
