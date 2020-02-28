@@ -103,7 +103,7 @@ int main(void) {
 	Chip_INMUX_PinIntSel(1, PD6_Port, PD6_Pin); // SW1
 	Chip_INMUX_PinIntSel(2, PD3_Port, PD3_Pin); // SW2
 
-	QEI qei(LpcPinMap {PD4_Port, PD4_Pin}, LpcPinMap {PD5_Port, PD5_Pin });
+	QEI qei(LpcPinMap {PD4_Port, PD4_Pin}, LpcPinMap {PD5_Port, PD5_Pin }, 3);
 
 	/* Configure channel 0 as edge sensitive and rising edge interrupt */
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));

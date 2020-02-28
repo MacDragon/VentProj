@@ -11,14 +11,14 @@
 std::atomic<ModeEdit::Mode> ModeEdit::fanMode{ Automatic };
 
 ModeEdit::ModeEdit(LiquidCrystal* lcd, int const lowerLimit, int const upperLimit, Mode const mode) :
-lcd{ lcd }, bar{ BarGraph(lcd, 14, upperLimit-lowerLimit, false) }, lowerLimit{ lowerLimit }, upperLimit{ upperLimit }, value{ lowerLimit }, edit{ lowerLimit },
+lcd{ lcd }, bar{ BarGraph(lcd, 16, upperLimit-lowerLimit, false) }, lowerLimit{ lowerLimit }, upperLimit{ upperLimit }, value{ lowerLimit }, edit{ lowerLimit },
 focus{ false }, mode{ mode }, ErrCount{ millis() }  {
 
 	switch ( mode ) {
 	case Manual :
 		title = "Fan Speed";
 		subTitle = "Fan Speed";
-		editUnit = "%";
+		editUnit = "% ";
 		dispTitle = "Cur Pres";
 		dispUnit = "Pa";
 		break;
@@ -85,9 +85,9 @@ void ModeEdit::display() {
 	if(focus) { // item editor
 		lcd->print("%-9s[%3d]%s", subTitle.c_str(), edit, editUnit.c_str());
 		// maybe draw bargraph here too
+//		lcd->setCursor(0, 1);
+//		lcd->print("[              ]");
 		lcd->setCursor(0, 1);
-		lcd->print("[              ]");
-		lcd->setCursor(1, 1);
 		bar.draw(edit-lowerLimit);
 	} else {
 		lcd->print("%-9s %3d %s", title.c_str(), value, editUnit.c_str());
