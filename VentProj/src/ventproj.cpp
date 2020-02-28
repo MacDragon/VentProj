@@ -14,17 +14,19 @@
 
 #include "LiquidCrystal.h"
 #include "SimpleMenu.h"
-#include "MenuEdit.h"
 #include "ModeEdit.h"
 #include "I2C.h"
 #include "Fan.h"
 #include "PID.h"
 #include "PIO.h"
+#include "QEI.h"
+
+#define NOHW
 
 #define TICKRATE_HZ (1000)
 
-static constexpr uint32_t cancel_time = 2000; // 2000ms
-static constexpr uint32_t debounce_time = 150; // 150ms. Lazy debouncing.
+static constexpr uint32_t cancel_time = 1000; // 2000ms
+static constexpr uint32_t debounce_time = 100; // 150ms. Lazy debouncing.
 static constexpr uint8_t i2c_pressure_address = 0x40;
 static constexpr uint8_t sensorReadCMD = 0xF1;
 static std::atomic<uint32_t> counter, systicks, last_press;
@@ -62,7 +64,7 @@ void PIN_INT2_IRQHandler(void) {
 void SysTick_Handler(void) {
 	if (++systicks - last_press >= cancel_time) {
 		last_press = systicks.load();
-		if ( menu != nullptr ) menu->event(MenuItem::back);
+		if ( menu != nullptr ) menu->event(MenuItem::back, 0);
 	}
 
 	if(counter > 0)
@@ -99,7 +101,9 @@ int main(void) {
 	/* Configure interrupt channels for the DigitalIoPins */
 	Chip_INMUX_PinIntSel(0, PD7_Port, PD7_Pin); // SW0
 	Chip_INMUX_PinIntSel(1, PD6_Port, PD6_Pin); // SW1
-	Chip_INMUX_PinIntSel(2, PD3_Port, PD3_Port); // SW2
+	Chip_INMUX_PinIntSel(2, PD3_Port, PD3_Pin); // SW2
+
+	QEI qei(LpcPinMap {PD4_Port, PD4_Pin}, LpcPinMap {PD5_Port, PD5_Pin });
 
 	/* Configure channel 0 as edge sensitive and rising edge interrupt */
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
@@ -137,22 +141,25 @@ int main(void) {
 	};
 
 	/* Menu setup */
+
+
+
+
 	menu = new SimpleMenu;
 
-	MenuEdit mainMenu(&lcd, std::string("Pressure:"), std::string("Fan speed:"), std::string("Working..."));
-	menu->addItem(&mainMenu);
+	ModeEdit autoEdit(&lcd, 30, 120, ModeEdit::Automatic);
+	menu->addItem(&autoEdit);
 
-	ModeEdit manualMenu(&lcd, std::string("Manual Mode"), std::string("Set Fan Speed:"), 0, 100, ModeEdit::Manual);
-	menu->addItem(&manualMenu);
-
-	ModeEdit autoMenu(&lcd, std::string("Auto Mode"), std::string("Set Pressure:"), 30, 120, ModeEdit::Automatic);
-	menu->addItem(&autoMenu);
+	ModeEdit manualEdit(&lcd, 0, 100, ModeEdit::Manual);
+	menu->addItem(&manualEdit);
 
 	/* Systick setup */
 	SysTick_Config(SystemCoreClock / TICKRATE_HZ);
 
 	/* Fan setup */
+#ifndef NOHW
 	Fan fan;
+#endif
 
 	/* I2C setup */
 	I2C i2c;
@@ -161,46 +168,67 @@ int main(void) {
 	/* PID setup */
 	PID<int> pid(255, 1.85, 0);
 
+	uint32_t mainloop = 0;
+
 	while(1) {
-		auto fanFreq = fan.getFrequency();
+		if ( mainloop % 20 == 1)
+		{
+#ifndef NOHW
+			auto fanFreq = fan.getFrequency();
 
-		if (i2c.transaction(i2c_pressure_address, &sensorReadCMD, 1, sensorData, 3))
-			pressure_diff = static_cast<int16_t>(sensorData[0] << 8 | sensorData[1]) / 240;
+			if (i2c.transaction(i2c_pressure_address, &sensorReadCMD, 1, sensorData, 3))
+				pressure_diff = static_cast<int16_t>(sensorData[0] << 8 | sensorData[1]) / 240;
+#else
+			int fanFreq= 0;
+			pressure_diff = 0;
+#endif
+			switch(ModeEdit::fanMode) {
+			case ModeEdit::Manual:
+#ifndef NOHW
+				if (fanFreq / 200 != manualEdit.getValue())
+					fan.setFrequency(200 * manualEdit.getValue());
+#endif
+				/* There is a problem with these checks for now where the fanMode might change
+				 * between the start of the scope and this if check. It leads to old values
+				 * being written over the value just entered in the interrupt. */
+//				if (!autoEdit.getFocus())
+//					autoEdit.setValue(pressure_diff); // Keep autoMenu updated with current pressure
+				break;
 
-		switch(ModeEdit::fanMode) {
-		case ModeEdit::Manual:
-			if (fanFreq / 200 != manualMenu.getValue())
-				fan.setFrequency(200 * manualMenu.getValue());
+			case ModeEdit::Automatic:
+#ifndef NOHW
+				if (abs(pressure_diff - autoEdit.getValue()) > 1) // if actual value is more then one off desired.
+					fan.setFrequency( fanFreq + pid.calculate(autoEdit.getValue(), pressure_diff) );
+#endif
+//				if (!manualEdit.getFocus())
+//					manualEdit.setValue(fanFreq / 200); // Keep manualMenu updated with current fan speed
+				break;
 
-			/* There is a problem with these checks for now where the fanMode might change
-			 * between the start of the scope and this if check. It leads to old values
-			 * being written over the value just entered in the interrupt. */
-			if (!autoMenu.getFocus())
-				autoMenu.setValue(pressure_diff); // Keep autoMenu updated with current pressure
-			break;
+			case ModeEdit::Startup:
+				/* Could do something here. The system boots up in this state */
+				break;
+			}
 
-		case ModeEdit::Automatic:
-			if (abs(pressure_diff - autoMenu.getValue()) > 1)
-				fan.setFrequency( fanFreq + pid.calculate(autoMenu.getValue(), pressure_diff) );
+			/* Update main menu with values from manual and auto menus
+			 *
+			 * Current and target values passed to the menu so that it
+			 * can keep an error counter and update the UI when things
+			 * are taking too long. */
 
-			if (!manualMenu.getFocus())
-				manualMenu.setValue(fanFreq / 200); // Keep manualMenu updated with current fan speed
-			break;
+			autoEdit.setDispValue2(pressure_diff);
+			manualEdit.setDispValue2(pressure_diff);
 
-		case ModeEdit::Startup:
-			/* Could do something here. The system boots up in this state */
-			break;
+			menu->event(MenuItem::show);
+
 		}
 
-		/* Update main menu with values from manual and auto menus
-		 *
-		 * Current and target values passed to the menu so that it
-		 * can keep an error counter and update the UI when things
-		 * are taking too long. */
-		mainMenu.setRow1Values(pressure_diff, autoMenu.getValue());
-		mainMenu.setRow2Values(fanFreq / 400, manualMenu.getValue());
-		menu->event(MenuItem::show);
-		Sleep(200);
-
+		int qeichange = qei.read();
+		if ( qeichange != 0 ){
+			last_press = systicks.load();
+			for ( int i=0;i<abs(qeichange);i++)
+				menu->event(MenuItem::change, qeichange);
+		}
+		mainloop++;
+		Sleep(10);
 	}
 }

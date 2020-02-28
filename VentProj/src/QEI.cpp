@@ -114,7 +114,7 @@ int QEI::read() {
 
 		if ( lastdir != dir ) vel = 1; // if switched directions, assume minimum velocity to eliminate spurious jumps on change.
 
-		int posupd=posread*vel; // calculate how much to move position by.
+		posupd=posread*vel; // calculate how much to move position by.
 
 		if ( posupd == 0 ) posupd = 1 *(dir ? -1 : 1 ); // an input was detected, ensure at least one value movement regardless of calculation.
 		ignore = true; // ignore next reading.

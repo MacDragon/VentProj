@@ -12,7 +12,7 @@
 
 class BarGraph {
 public:
-	BarGraph(LiquidCrystal *lcd_, int length_ = 5, int maxval = 100, bool vertical_ = false);
+	BarGraph(LiquidCrystal *lcd_, int length_ = 5, bool vertical_ = false);
 	virtual ~BarGraph();
 	void draw(int value);
 
@@ -23,7 +23,6 @@ private:
 	const static uint8_t horizontalMap[8][8];
 	const static uint8_t verticalMap[8][8];
 	int length;
-	int maxval;
 	bool vertical;
 	int size;
 };

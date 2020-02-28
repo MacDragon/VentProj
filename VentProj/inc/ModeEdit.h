@@ -12,7 +12,9 @@
 #include "LiquidCrystal.h"
 #include <string>
 #include <atomic>
+#include "BarGraph.h"
 
+uint32_t millis();
 
 class ModeEdit: public PropertyEdit {
 public:
@@ -22,10 +24,11 @@ public:
 	enum Mode { Manual, Automatic, Startup };
 	static std::atomic<Mode> fanMode;
 
-	ModeEdit(LiquidCrystal* lcd, std::string const& title, std::string const& subTitle, int const lowerLimit, int const upperLimit, Mode const mode = Manual);
+	ModeEdit(LiquidCrystal* lcd, int const lowerLimit, int const upperLimit, Mode const mode);
 	virtual ~ModeEdit();
 	void increment();
 	void decrement();
+	void change(int amount);
 	void accept();
 	void cancel();
 	void setFocus(bool focus);
@@ -34,15 +37,22 @@ public:
 
 	int  getValue() const;
 	void setValue(int const value);
+	void setDispValue2(const int value);
+
 
 
 private:
 	LiquidCrystal* lcd;
-	std::string const title, subTitle;
+	BarGraph bar;
+
+	std::string title, subTitle, editUnit;
+	std::string dispTitle, dispUnit;
 	int const lowerLimit, upperLimit;
-	int value, edit;
+	int value, edit, value2;
 	bool focus;
 	Mode const mode;
+	unsigned int ErrCount;
+	static constexpr unsigned int error_threshold = 5000; // 5 seconds
 };
 
 

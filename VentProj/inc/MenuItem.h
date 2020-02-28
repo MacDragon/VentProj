@@ -17,12 +17,13 @@ public:
 		down,
 		ok,
 		back,
-		show
+		show,
+		change
 	};
 
 	MenuItem(PropertyEdit* const property);
 	virtual ~MenuItem();
-	virtual bool event(menuEvent e);
+	virtual bool event(menuEvent e, int amount = 1);
 private:
 	PropertyEdit* const pe;
 };

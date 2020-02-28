@@ -14,6 +14,7 @@ public:
 	virtual ~PropertyEdit() {};
 	virtual void increment() = 0;
 	virtual void decrement() = 0;
+	virtual void change(int amount) = 0;
 	virtual void accept() = 0;
 	virtual void cancel() = 0;
 	virtual void setFocus(bool focus) = 0;
