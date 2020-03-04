@@ -26,7 +26,7 @@
 #define TICKRATE_HZ (1000)
 
 static constexpr uint32_t cancel_time = 1000; // 2000ms
-static constexpr uint32_t debounce_time = 100; // 150ms. Lazy debouncing.
+static constexpr uint32_t debounce_time = 150; // 150ms. Lazy debouncing.
 static constexpr uint8_t i2c_pressure_address = 0x40;
 static constexpr uint8_t sensorReadCMD = 0xF1;
 static std::atomic<uint32_t> counter, systicks, last_press;
@@ -121,8 +121,8 @@ int main(void) {
 	DigitalIoPin SW2(PD3_Port, PD3_Pin, true, true, true);
 
 	Chip_PININT_Init(LPC_GPIO_PIN_INT);
-	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PININT); /* Enable PININT clock */
-	Chip_SYSCTL_PeriphReset(RESET_PININT); /* Reset the PININT block */
+//	Chip_Clock_EnablePeriphClock(SYSCTL_CLOCK_PININT); /* Enable PININT clock */
+//	Chip_SYSCTL_PeriphReset(RESET_PININT); /* Reset the PININT block */
 
 	/* Configure interrupt channels for the DigitalIoPins */
 	Chip_INMUX_PinIntSel(0, PD7_Port, PD7_Pin); // SW0
@@ -190,8 +190,8 @@ int main(void) {
 	NVIC_DisableIRQ(I2C0_IRQn);
 
 	/* PID setup */
-	PID<int> pid(255, 1.85, 0);
-//	PID<int> pid(255, 0, 1.85);
+//	PID<int> pid(255, 1.85, 0);
+	PID<int> pid(255, 0, 1.35);
 
 	while(1) {
 #ifndef NOHW
@@ -243,6 +243,6 @@ int main(void) {
 			manualEdit.setDispValue2(pressure_diff);
 
 			menu->event(MenuItem::show);
-		Sleep(100);
+		Sleep(50);
 	}
 }
