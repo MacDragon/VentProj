@@ -56,6 +56,6 @@ private:
 	bool focus;
 	Mode const mode;
 	unsigned int ErrTime;
-	static constexpr unsigned int error_threshold = 5000; // 5 seconds
+	static constexpr unsigned int error_threshold = 10000; //  seconds
 };
 #endif /* INTEGEREDIT_H_ */
