@@ -59,11 +59,12 @@ device{ LPC_I2C0 } {
 
 	/* Enable Master Mode */
 	Chip_I2CM_Enable(device);
+
+	/* Disable Interrupts */
+	NVIC_DisableIRQ(I2C0_IRQn);
 }
 
-I2C::~I2C() {
-	// TODO Auto-generated destructor stub
-}
+I2C::~I2C() { /* Empty */ }
 
 bool I2C::write(uint8_t const devAddr, uint8_t const * const txBuffPtr, uint16_t const txSize) const {
 	return transaction(devAddr, txBuffPtr, txSize, nullptr, 0);
@@ -72,7 +73,6 @@ bool I2C::write(uint8_t const devAddr, uint8_t const * const txBuffPtr, uint16_t
 bool I2C::read(uint8_t const devAddr, uint8_t* const rxBuffPtr, uint16_t const rxSize) const {
 	return transaction(devAddr, nullptr, 0, rxBuffPtr, rxSize);
 }
-
 
 bool I2C::transaction(uint8_t const devAddr, uint8_t const * const txBuffPtr, uint16_t const txSize, uint8_t* const rxBuffPtr, uint16_t const rxSize) const {
 	I2CM_XFER_T i2cmXferRec {

@@ -12,20 +12,14 @@
 
 class MenuItem {
 public:
-	enum menuEvent {
-		up,
-		down,
-		ok,
-		back,
-		show,
-		change
-	};
+	enum menuEvent { up, down, ok, back, show, change };
 
-	MenuItem(PropertyEdit* const property);
+	MenuItem(PropertyEdit& property);
 	virtual ~MenuItem();
 	virtual bool event(menuEvent e, int amount = 1);
+
 private:
-	PropertyEdit* const pe;
+	PropertyEdit& pe;
 };
 
 #endif /* MENUITEM_H_ */

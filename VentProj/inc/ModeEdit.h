@@ -8,24 +8,28 @@
 #ifndef INTEGEREDIT_H_
 #define INTEGEREDIT_H_
 
-#include "PropertyEdit.h"
 #include "LiquidCrystal.h"
+#include "PropertyEdit.h"
+#include "BarGraph.h"
+#include "Subject.h"
 #include <string>
 #include <atomic>
-#include "BarGraph.h"
 
 uint32_t millis();
 
+struct DisplayCfg {
+
+};
+
 class ModeEdit: public PropertyEdit {
 public:
-	/* Lazy state machine. Instances of this class are each associated with a Mode
-	 * and will modify the state of the class (fanMode) when the accept() function
-	 * is called. */
-	enum Mode { Manual, Automatic, Startup };
+	enum Mode { Manual, Automatic };
 	static std::atomic<Mode> fanMode;
 
-	ModeEdit(LiquidCrystal* lcd, int const lowerLimit, int const upperLimit, Mode const mode);
+	ModeEdit(Subject& subject, LiquidCrystal& lcd, int const lowerLimit, int const upperLimit, Mode const mode);
 	virtual ~ModeEdit();
+
+	/* Menu interface implementation */
 	void increment();
 	void decrement();
 	void change(int amount);
@@ -35,26 +39,23 @@ public:
 	bool getFocus() const;
 	void display();
 
+	/* Observer pattern interface implementation */
+	void update(int value);
+
 	int  getValue() const;
-	void setValue(int const value);
-	void setDispValue2(const int value);
-
-
+	void setValue(int value);
 
 private:
-	LiquidCrystal* lcd;
+	Subject& subject;
+	LiquidCrystal& lcd;
 	BarGraph bar;
 
-	std::string title, subTitle, editUnit;
-	std::string dispTitle, dispUnit;
+	std::string title, subTitle, editUnit, dispTitle, dispUnit;
 	int const lowerLimit, upperLimit;
-	int value, edit, value2;
+	int value, edit, observedValue;
 	bool focus;
 	Mode const mode;
 	unsigned int ErrTime;
 	static constexpr unsigned int error_threshold = 5000; // 5 seconds
 };
-
-
-
 #endif /* INTEGEREDIT_H_ */

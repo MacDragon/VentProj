@@ -17,7 +17,7 @@ class SimpleMenu {
 public:
 	SimpleMenu();
 	virtual ~SimpleMenu();
-	void addItem(PropertyEdit* pe);
+	void addItem(PropertyEdit& pe);
 	void event(MenuItem::menuEvent e, int amount = 1);
 
 private:

@@ -10,9 +10,11 @@
 
 std::atomic<ModeEdit::Mode> ModeEdit::fanMode{ Automatic };
 
-ModeEdit::ModeEdit(LiquidCrystal* lcd, int const lowerLimit, int const upperLimit, Mode const mode) :
-lcd{ lcd }, bar{ BarGraph(lcd, 16, upperLimit-lowerLimit, false) }, lowerLimit{ lowerLimit }, upperLimit{ upperLimit }, value{ lowerLimit }, edit{ lowerLimit },
-focus{ false }, mode{ mode }, ErrTime{ millis() }  {
+ModeEdit::ModeEdit(Subject& subject, LiquidCrystal& lcd, int const lowerLimit, int const upperLimit, Mode const mode)
+:	subject{ subject }, lcd{ lcd }, bar{ BarGraph(lcd, 16, upperLimit-lowerLimit, false) }, lowerLimit{ lowerLimit }, upperLimit{ upperLimit }, value{ lowerLimit }, edit{ lowerLimit },
+	focus{ false }, mode{ mode }, ErrTime{ millis() } {
+
+	subject.attach(this);
 
 	switch ( mode ) {
 	case Manual :
@@ -22,6 +24,7 @@ focus{ false }, mode{ mode }, ErrTime{ millis() }  {
 		dispTitle = "Cur Pres";
 		dispUnit = "Pa";
 		break;
+
 	case Automatic :
 		title = "Pres Req";
 		subTitle = "Pres Req";
@@ -29,20 +32,10 @@ focus{ false }, mode{ mode }, ErrTime{ millis() }  {
 		dispTitle = "Cur Pres";
 		dispUnit = "Pa";
 		break;
-		break;
-	case Startup :
-		title = "";
-		subTitle = "";
-		editUnit = "";
-		dispTitle = "";
-		dispUnit = "";
-		break;
 	}
 }
 
-ModeEdit::~ModeEdit() {
-	/* Empty */
-}
+ModeEdit::~ModeEdit() { /* Empty */ }
 
 void ModeEdit::increment() {
 	if (edit < upperLimit)
@@ -55,16 +48,16 @@ void ModeEdit::decrement() {
 }
 
 void ModeEdit::change(int amount) {
-	edit+=amount;
+	edit += amount;
 	if (edit < lowerLimit)
 		edit = lowerLimit;
-	if (edit > upperLimit)
+	else if (edit > upperLimit)
 		edit = upperLimit;
 }
 
 void ModeEdit::accept() {
 	value = edit;
-	ErrTime  = millis();
+	ErrTime = millis();
 }
 
 void ModeEdit::cancel() {
@@ -81,46 +74,46 @@ bool ModeEdit::getFocus() const {
 
 void ModeEdit::display() {
 	fanMode = mode;
-//	lcd->clear();
-	lcd->setCursor(0, 0);
-	if(focus) { // item editor
-		lcd->print("%-9s[%3d]%s", subTitle.c_str(), edit, editUnit.c_str());
-		// maybe draw bargraph here too
-//		lcd->setCursor(0, 1);
-//		lcd->print("[              ]");
-		lcd->setCursor(0, 1);
+	lcd.setCursor(0, 0);
+	if (focus) { // item editor
+		lcd.print("%-9s[%3d]%s", subTitle.c_str(), edit, editUnit.c_str());
+		lcd.setCursor(0, 1);
 		bar.draw(edit-lowerLimit);
 	} else {
-		if ( millis() - ErrTime > error_threshold )
-		{
-			lcd->print("%-9s %3d %s", "Set Fail:", value, editUnit.c_str());
-		} else
-			lcd->print("%-9s %3d %s", title.c_str(), value, editUnit.c_str());
-		lcd->setCursor(0, 1);
-		// second display value
+		if (millis() - ErrTime > error_threshold)
+			lcd.print("%-9s %3d %s", "Set Fail:", value, editUnit.c_str());
+		else
+			lcd.print("%-9s %3d %s", title.c_str(), value, editUnit.c_str());
 
-
-
-			lcd->print("%-10s%3d %s", dispTitle.c_str(), value2, dispUnit.c_str());
+		lcd.setCursor(0, 1);
+		lcd.print("%-10s%3d %s", dispTitle.c_str(), observedValue, dispUnit.c_str());
 	}
 
+}
+
+void ModeEdit::update(int value) {
+	switch (mode) {
+	case Manual:
+		ErrTime = millis();
+		observedValue = value;
+		break;
+
+	case Automatic:
+		if (abs(this->value - value) <= 2)
+			ErrTime = millis();
+		observedValue = value;
+		break;
+	}
 }
 
 int ModeEdit::getValue() const {
 	return value;
 }
-void ModeEdit::setValue(int const value) {
-	this->value = this->edit = value;
-}
+void ModeEdit::setValue(int value) {
+	if (value < lowerLimit)
+		value = lowerLimit;
 
-void ModeEdit::setDispValue2(const int value) {
-	this->value2 = value;
-	if ( mode == Automatic )
-	{
-		if (abs(this->value-value) <= 2)
-			ErrTime = millis();
-	}
-	else ErrTime = millis();
+	this->value = this->edit = value;
 }
 
 

@@ -8,9 +8,11 @@
 #ifndef PROPERTYEDIT_H_
 #define PROPERTYEDIT_H_
 
+#include <cstdint>
+
+/* Frankstein's monster interface that also follows the observer pattern */
 class PropertyEdit {
 public:
-	PropertyEdit() {};
 	virtual ~PropertyEdit() {};
 	virtual void increment() = 0;
 	virtual void decrement() = 0;
@@ -20,6 +22,9 @@ public:
 	virtual void setFocus(bool focus) = 0;
 	virtual bool getFocus() const = 0;
 	virtual void display() = 0;
+
+	/* Observer pattern */
+	virtual void update(int value) = 0;
 };
 
 #endif /* PROPERTYEDIT_H_ */

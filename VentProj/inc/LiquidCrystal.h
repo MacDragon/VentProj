@@ -49,60 +49,60 @@
 class LiquidCrystal {
 public:
 
-  LiquidCrystal(std::unique_ptr<DigitalIoPin>&& rs, std::unique_ptr<DigitalIoPin>&& enable, std::unique_ptr<DigitalIoPin>&& d0,
-		  std::unique_ptr<DigitalIoPin>&& d1, std::unique_ptr<DigitalIoPin>&& d2, std::unique_ptr<DigitalIoPin>&& d3);
+	LiquidCrystal(DigitalIoPin* const rs, DigitalIoPin* const enable, DigitalIoPin* const d0, DigitalIoPin* const d1, DigitalIoPin* const d2, DigitalIoPin* const d3);
 
-  void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
+	void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);
 
-  void clear();
-  void home();
+	void clear();
+	void home();
 
-  void noDisplay();
-  void display();
-  void noBlink();
-  void blink();
-  void noCursor();
-  void cursor();
-  void scrollDisplayLeft();
-  void scrollDisplayRight();
-  void leftToRight();
-  void rightToLeft();
-  void autoscroll();
-  void noAutoscroll();
+	void noDisplay();
+	void display();
+	void noBlink();
+	void blink();
+	void noCursor();
+	void cursor();
+	void scrollDisplayLeft();
+	void scrollDisplayRight();
+	void leftToRight();
+	void rightToLeft();
+	void autoscroll();
+	void noAutoscroll();
 
-  void createChar(uint8_t, uint8_t[]);
-  void setCursor(uint8_t, uint8_t);
-  virtual size_t write(uint8_t);
-  void command(uint8_t);
+	void createChar(uint8_t, uint8_t[]);
+	void setCursor(uint8_t, uint8_t);
+	virtual size_t write(uint8_t);
+	void command(uint8_t);
 
-  template<typename... Args>
-  void print(std::string const &fmt, Args const &... args) {
-	  print(fmt.c_str(), args...);
-  }
+	template<typename... Args>
+	void print(std::string const &fmt, Args const &... args) {
+		print(fmt.c_str(), args...);
+	}
 
-  template<typename... Args>
-  void print(char const * const fmt, Args const &... args) {
-  	static char buffer[100];
-  	sprintf(buffer, fmt, args...);
-  	for(uint8_t i = 0; buffer[i]; ++i) {
-  		write(buffer[i]);
-  	}
-  }
+	template<typename... Args>
+	void print(char const * const fmt, Args const &... args) {
+		static char buffer[100];
+		sprintf(buffer, fmt, args...);
+		for(uint8_t i = 0; buffer[i]; ++i) {
+			write(buffer[i]);
+		}
+	}
 
 private:
-  void send(uint8_t, uint8_t);
-  void write4bits(uint8_t);
-  void pulseEnable();
+	void send(uint8_t, uint8_t);
+	void write4bits(uint8_t);
+	void pulseEnable();
 
-  std::unique_ptr<DigitalIoPin> rs_pin; 	// LOW(false): command.  HIGH(true): character.
-  std::unique_ptr<DigitalIoPin> enable_pin; // activated by a HIGH pulse.
-  std::unique_ptr<DigitalIoPin> data_pins[4];
+	/* The pins ought to be non-null, so references should be used instead of raw pointers. */
+	DigitalIoPin* const rs_pin; 	// LOW(false): command.  HIGH(true): character.
+	DigitalIoPin* const enable_pin; // activated by a HIGH pulse.
+	DigitalIoPin* const data_pins[4];
 
-  uint8_t _displayfunction;
-  uint8_t _displaycontrol;
-  uint8_t _displaymode;
-  uint8_t _initialized;
-  uint8_t _numlines,_currline;
+	uint8_t _displayfunction;
+	uint8_t _displaycontrol;
+	uint8_t _displaymode;
+	uint8_t _initialized;
+	uint8_t _numlines,_currline;
 };
 
 #endif

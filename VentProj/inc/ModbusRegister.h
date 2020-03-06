@@ -12,13 +12,13 @@
 
 class ModbusRegister {
 public:
-	constexpr ModbusRegister(ModbusMaster* const master, int const address) : m{ master }, addr{ address } {}
-	ModbusRegister(const ModbusRegister&)  = delete;
+	constexpr ModbusRegister(ModbusMaster& master, int const address) : m{ master }, addr{ address } {}
+	ModbusRegister(const ModbusRegister&) = delete;
 	virtual ~ModbusRegister();
 	operator int();
 	const ModbusRegister& operator=(int value);
 private:
-	ModbusMaster* const m;
+	ModbusMaster& m;
 	int const addr;
 };
 

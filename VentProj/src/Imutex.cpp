@@ -7,9 +7,9 @@
 
 #include "Imutex.h"
 
-Imutex::Imutex() : enable(false) {}
+Imutex::Imutex() : enable(false) { /* Empty */ }
 
-Imutex::~Imutex() {}
+Imutex::~Imutex() { /* Empty */ }
 
 void Imutex::lock() {
 	enable = (__get_PRIMASK() & 1) == 0;
@@ -17,7 +17,7 @@ void Imutex::lock() {
 }
 
 void Imutex::unlock() {
-	if(enable)
+	if (enable)
 		__enable_irq();
 }
 

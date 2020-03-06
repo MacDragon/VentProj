@@ -7,9 +7,9 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(PropertyEdit* const property) : pe{ property } {}
+MenuItem::MenuItem(PropertyEdit& property) : pe{ property } { /* Empty */ }
 
-MenuItem::~MenuItem() {}
+MenuItem::~MenuItem() { /* Empty */ }
 
 bool MenuItem::event(menuEvent e, int amount) {
 	bool handled = true;
@@ -17,19 +17,18 @@ bool MenuItem::event(menuEvent e, int amount) {
 	switch(e) {
 	case ok:
 		// do nothing, ok is not used to move between items not start edit.
-
-		if(pe->getFocus()) {
-			pe->setFocus(false);
-			pe->accept();
+		if(pe.getFocus()) {
+			pe.setFocus(false);
+			pe.accept();
 		}
 		else
 			handled = false;
 		break;
 
 	case back:
-		if(pe->getFocus()) {
-			pe->setFocus(false);
-			pe->cancel();
+		if(pe.getFocus()) {
+			pe.setFocus(false);
+			pe.cancel();
 		}
 		else
 			handled = false;
@@ -39,33 +38,29 @@ bool MenuItem::event(menuEvent e, int amount) {
 		break;
 
 	case up:
-		if(pe->getFocus())
-			pe->increment();
+		if(pe.getFocus())
+			pe.increment();
 		else
-			pe->setFocus(true);
-//			handled = false;
+			pe.setFocus(true);
 		break;
 
 	case down:
-		if(pe->getFocus())
-			pe->decrement();
+		if(pe.getFocus())
+			pe.decrement();
 		else
-				pe->setFocus(true);
-//			handled = false;
+			pe.setFocus(true);
 		break;
 
 	case change:
-		if(pe->getFocus())
-			pe->change(amount);
+		if(pe.getFocus())
+			pe.change(amount);
 		else
-			pe->setFocus(true);
-//			handled = false;
+			pe.setFocus(true);
 	break;
 	}
 
-
-	if(handled)
-		pe->display();
+	if (handled)
+		pe.display();
 
 	return handled;
 }

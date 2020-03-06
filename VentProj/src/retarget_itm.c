@@ -84,15 +84,10 @@ int _write(int iFileHandle, char *pcBuffer, int iLength) {
 	// that write is to stdout
 
 	// check if debugger connected and ITM channel enabled for tracing
-	if ((DEMCR & TRCENA) &&
-	// ITM enabled
-			(ITM_TCR & ITM_TCR_ITMENA) &&
-			// ITM Port #0 enabled
-			(ITM_TER & ITM_TER_PORT0ENA)) {
+	if ((DEMCR & TRCENA) &&	(ITM_TCR & ITM_TCR_ITMENA) && (ITM_TER & ITM_TER_PORT0ENA)) {
 
 		while (num < iLength) {
-			while (ITM_Port32(0) == 0) {
-			}
+			while (ITM_Port32(0) == 0) {}
 			ITM_Port8(0) = pcBuffer[num++];
 		}
 		return 0;

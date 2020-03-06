@@ -26,23 +26,23 @@ const uint8_t BarGraph::verticalMap[8][8] = {
 		{ 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F, 0x1F }
 };
 
-BarGraph::BarGraph(LiquidCrystal *lcd_, int length_, int maxval, bool vertical_): lcd(lcd_), length(length_), maxval( maxval), vertical(vertical_) {
+BarGraph::BarGraph(LiquidCrystal& lcd_, int length_, int maxval, bool vertical_): lcd(lcd_), length(length_), maxval( maxval), vertical(vertical_) {
 	int i;
 	if(vertical) {
 		length = 8;
 		for(i = 0; i < 8; i++) {
-			lcd->createChar(i, (uint8_t *) verticalMap[i]);
+			lcd.createChar(i, (uint8_t *) verticalMap[i]);
 		}
 		size = 1;
 	}
 	else {
 		if(length < 5) length = 5;
 		for(i = 0; i < 8; i++) {
-			lcd->createChar(i, (uint8_t *) horizontalMap[i]);
+			lcd.createChar(i, (uint8_t *) horizontalMap[i]);
 		}
 		size = length; // / 5 + (length % 5 > 0 ? 1 : 0);
 	}
-	lcd->setCursor(0,0); // move cursor back to visible area
+	lcd.setCursor(0,0); // move cursor back to visible area
 }
 
 BarGraph::~BarGraph() {
@@ -54,8 +54,8 @@ void BarGraph::draw(int value) {
 	if(value > maxval) value = maxval;
 
 	if(vertical) {
-		if(value == 0) lcd->write(32);
-		else lcd->write(value - 1);
+		if(value == 0) lcd.write(32);
+		else lcd.write(value - 1);
 	}
 	else {
 		value = (size*5)/(float(maxval)/value);
@@ -64,15 +64,15 @@ void BarGraph::draw(int value) {
 		int count = size;
 		while(count) {
 			if(full > 0) {
-				lcd->write(4);
+				lcd.write(4);
 				full--;
 			}
 			else if(rest > 0) {
-				lcd->write(rest - 1);
+				lcd.write(rest - 1);
 				rest = 0;
 			}
 			else {
-				lcd->write(32);
+				lcd.write(32);
 			}
 			count--;
 		}

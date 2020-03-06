@@ -12,7 +12,7 @@ void delayMicroseconds(uint64_t us) {
 	Chip_RIT_SetCompareValue(LPC_RITIMER, compval);
 	Chip_RIT_SetCounter(LPC_RITIMER, 0);
 	Chip_RIT_Enable(LPC_RITIMER);
-	while(!Chip_RIT_GetIntStatus(LPC_RITIMER)) {};
+	while(!Chip_RIT_GetIntStatus(LPC_RITIMER));
 	Chip_RIT_Disable(LPC_RITIMER);
 	Chip_RIT_ClearIntStatus(LPC_RITIMER);
 }
@@ -36,15 +36,8 @@ void delayMicroseconds(uint64_t us) {
 // can't assume that its in that state when a sketch starts (and the
 // LiquidCrystal constructor is called).
 
-
-
-// const DigitalIoPin&
-// DigitalIoPin&&
-LiquidCrystal::LiquidCrystal(std::unique_ptr<DigitalIoPin>&& rs, std::unique_ptr<DigitalIoPin>&& enable, std::unique_ptr<DigitalIoPin>&& d0,
-		  std::unique_ptr<DigitalIoPin>&& d1, std::unique_ptr<DigitalIoPin>&& d2, std::unique_ptr<DigitalIoPin>&& d3)
-: 	rs_pin{ std::move(rs) }, enable_pin{ std::move(enable) }, data_pins{ std::move(d0), std::move(d1), std::move(d2), std::move(d3) },
-	_displayfunction{ LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS }
-{
+LiquidCrystal::LiquidCrystal(DigitalIoPin* const rs, DigitalIoPin* const enable, DigitalIoPin* const d0, DigitalIoPin* const d1, DigitalIoPin* const d2, DigitalIoPin* const d3)
+: 	rs_pin{ rs }, enable_pin{ enable }, data_pins{ d0, d1, d2, d3 }, _displayfunction{ LCD_4BITMODE | LCD_1LINE | LCD_5x8DOTS } {
 	begin(16, 2); // default to 16x2 display
 	setCursor(0,0);
 }
@@ -71,7 +64,7 @@ void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
 	// note: this port supports only 4 bit mode
 	//put the LCD into 4 bit or 8 bit mode
-	if (! (_displayfunction & LCD_8BITMODE)) {
+	if (!(_displayfunction & LCD_8BITMODE)) {
 		// this is according to the hitachi HD44780 datasheet
 		// figure 24, pg 46
 
@@ -123,14 +116,12 @@ void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 }
 
 /********** high level commands, for the user! */
-void LiquidCrystal::clear()
-{
+void LiquidCrystal::clear() {
 	command(LCD_CLEARDISPLAY);  // clear display, set cursor position to zero
 	delayMicroseconds(2000);  // this command takes a long time!
 }
 
-void LiquidCrystal::home()
-{
+void LiquidCrystal::home() {
 	command(LCD_RETURNHOME);  // set cursor position to zero
 	delayMicroseconds(2000);  // this command takes a long time!
 }
@@ -138,9 +129,8 @@ void LiquidCrystal::home()
 void LiquidCrystal::setCursor(uint8_t col, uint8_t row)
 {
 	int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
-	if ( row >= _numlines ) {
-		row = _numlines-1;    // we count rows starting w/0
-	}
+	if ( row >= _numlines )
+		row = _numlines - 1;    // we count rows starting w/0
 
 	command(LCD_SETDDRAMADDR | (col + row_offsets[row]));
 }
@@ -232,25 +222,24 @@ inline size_t LiquidCrystal::write(uint8_t value) {
 
 // write either command or data
 void LiquidCrystal::send(uint8_t value, uint8_t mode) {
-	rs_pin->write(mode); //digitalWrite(_rs_pin, mode);
+	rs_pin->write(mode);
 
 	write4bits(value>>4);
 	write4bits(value);
 }
 
 void LiquidCrystal::pulseEnable(void) {
-	enable_pin->write(false); //digitalWrite(_enable_pin, LOW);
+	enable_pin->write(false);
 	delayMicroseconds(1);
-	enable_pin->write(true); //digitalWrite(_enable_pin, HIGH);
-	delayMicroseconds(1);    // enable pulse must be >450ns
-	enable_pin->write(false); //digitalWrite(_enable_pin, LOW);
-	delayMicroseconds(100);   // commands need > 37us to settle
+	enable_pin->write(true);
+	delayMicroseconds(1);
+	enable_pin->write(false);
+	delayMicroseconds(100);
 }
 
 void LiquidCrystal::write4bits(uint8_t value) {
-	for (int i = 0; i < 4; i++) {
-		data_pins[i]->write((value >> i) & 0x01); //digitalWrite(_data_pins[i], (value >> i) & 0x01);
-	}
+	for (int i = 0; i < 4; i++)
+		data_pins[i]->write((value >> i) & 0x01);
 
 	pulseEnable();
 }
