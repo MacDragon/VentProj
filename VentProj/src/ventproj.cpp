@@ -1,7 +1,7 @@
 /*
 ===============================================================================
  Name        : main.c
- Author      : $(author)
+ Author      : Joshua Waugh & Visa Harvey
  Version     :
  Copyright   : $(copyright)
  Description : main definition
@@ -21,9 +21,9 @@
 #include "PIO.h"
 #include "QEI.h"
 
-static constexpr uint32_t kTickrateHz  { 1000 };
-static constexpr uint32_t kCancelTime  { 1000 }; // 2000ms
 static constexpr uint32_t kDebounceTime { 100 }; // 100ms. Lazy debouncing.
+static constexpr uint32_t kLoopTime    { 1000 }; // 2000ms
+static constexpr uint32_t kTickrateHz  { 1000 };
 static std::atomic<uint32_t> counter, systicks, last_press;
 static SimpleMenu* menu { nullptr };
 static QEI* qei { nullptr };
@@ -51,7 +51,7 @@ void QEI_IRQHandler(void){
 }
 
 void SysTick_Handler(void) {
-	if (++systicks - last_press >= kCancelTime) {
+	if (++systicks - last_press >= kLoopTime) {
 		last_press = systicks.load();
 		if ( menu != nullptr )
 			menu->event(MenuItem::back, 0);
@@ -60,14 +60,14 @@ void SysTick_Handler(void) {
 	if (systicks % 10 == 1 && qei != nullptr ) // check knob readings
 	{
 		int qeichange = qei->read();
-		if ( qeichange != 0 ){
+		if (qeichange != 0) {
 			last_press = systicks.load();
 			for (int i = 0; i < abs(qeichange); i++)
 				menu->event(MenuItem::change, qeichange);
 		}
 	}
 
-	if(counter > 0)
+	if (counter > 0)
 		--counter;
 }
 }
@@ -155,7 +155,7 @@ int main(void) {
 		 * fed at regular intervals and also so we're not rapidly
 		 * changing the fan speed. */
 		auto endTicks = millis();
-		if (endTicks - startTicks < 1000)
-			Sleep(1000 - endTicks + startTicks);
+		if (endTicks - startTicks < kLoopTime)
+			Sleep(kLoopTime - endTicks + startTicks);
 	}
 }

@@ -12,7 +12,6 @@
 #include "ModbusMaster.h"
 #include <cstdio>
 
-/* Defined in main */
 void Sleep(unsigned int ms);
 
 class Fan {

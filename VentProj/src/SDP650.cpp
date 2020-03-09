@@ -8,7 +8,6 @@
 #include "SDP650.h"
 
 constexpr uint8_t SDP650::kSDP650ReadCMD;
-constexpr uint8_t SDP650::kSDP650Address;
 
 SDP650::SDP650(I2C&& i2c) : i2c{ i2c } { /* Empty */ }
 
@@ -29,7 +28,6 @@ void SDP650::attach(PropertyEdit* observer) {
 };
 
 void SDP650::notify() {
-	for (const auto& observer : observers) {
+	for (const auto& observer : observers)
 		observer->update(pressure);
-	}
 };
