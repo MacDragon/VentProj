@@ -5,7 +5,7 @@
  *      Author: Joshua
  */
 
-#include <SDP650.h>
+#include "SDP650.h"
 
 constexpr uint8_t SDP650::kSDP650ReadCMD;
 constexpr uint8_t SDP650::kSDP650Address;

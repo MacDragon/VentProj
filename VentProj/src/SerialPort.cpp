@@ -11,9 +11,9 @@
 SerialPort::SerialPort() :
 uart{ new LpcUart { LpcUartConfig { LPC_USART1, 9600, UART_CFG_DATALEN_8 | UART_CFG_PARITY_NONE | UART_CFG_STOPLEN_2, true,
 	LpcPinMap{ 1, 9 }, LpcPinMap{ 1, 10 }, LpcPinMap{ 0, 29 }, LpcPinMap{ -1, -1 } } }
-} {}
+} { /* Empty */ }
 
-SerialPort::~SerialPort() {}
+SerialPort::~SerialPort() { /* Empty */ }
 
 int SerialPort::available() {
 	return uart->peek();

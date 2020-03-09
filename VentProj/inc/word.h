@@ -44,7 +44,7 @@ This header file provides utility functions for manipulating words.
     @return low word of input (0x0000..0xFFFF)
 */
 static inline uint16_t lowWord(uint32_t ww) {
-  return (uint16_t) ((ww) & 0xFFFF);
+  return static_cast<uint16_t>(ww & 0xFFFF);
 }
 
 
@@ -55,30 +55,30 @@ static inline uint16_t lowWord(uint32_t ww) {
     @return high word of input (0x0000..0xFFFF)
 */
 static inline uint16_t highWord(uint32_t ww) {
-  return (uint16_t) ((ww) >> 16);
+  return static_cast<uint16_t>(ww >> 16);
 }
 
 /* utility functions for porting ModbusMaster to LPCXpresso
  * added by krl
  */
 static inline uint16_t word(uint8_t ww) {
-  return (uint16_t) (ww);
+  return static_cast<uint16_t>(ww);
 }
 
 static inline uint16_t word(uint8_t h, uint8_t l) {
-  return (uint16_t) ((h << 8) | l);
+  return static_cast<uint16_t>(h << 8 | l);
 }
 
 static inline uint8_t highByte(uint16_t v) {
-  return (uint8_t) ((v >> 8) & 0xFF);
+  return static_cast<uint8_t>(v >> 8 & 0xFF);
 }
 
 static inline uint16_t lowByte(uint16_t v) {
-	return (uint8_t) (v & 0xFF);
+	return static_cast<uint8_t>(v & 0xFF);
 }
 
 static inline uint8_t bitRead(uint8_t v, uint8_t n) {
-	return (uint8_t) (v & (1 << n) ? 1 : 0);
+	return static_cast<uint8_t>(v & 1 << n ? 1 : 0);
 }
 
 static inline void bitWrite(uint16_t& v, uint8_t n, uint8_t b) {

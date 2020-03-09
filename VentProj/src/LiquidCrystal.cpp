@@ -1,6 +1,5 @@
 #include "LiquidCrystal.h"
 
-#include <cstring>
 #include "chip.h"
 
 #define LOW 0
@@ -110,6 +109,7 @@ void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
 
 	// Initialize to default text direction (for romance languages)
 	_displaymode = LCD_ENTRYLEFT | LCD_ENTRYSHIFTDECREMENT;
+
 	// set the entry mode
 	command(LCD_ENTRYMODESET | _displaymode);
 

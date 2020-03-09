@@ -7,11 +7,12 @@
 
 #ifndef SIMPLEMENU_H_
 #define SIMPLEMENU_H_
-#include <vector>
-#include <memory>
+
 #include "PropertyEdit.h"
 #include "MenuItem.h"
 #include "Imutex.h"
+#include <memory>
+#include <vector>
 
 class SimpleMenu {
 public:

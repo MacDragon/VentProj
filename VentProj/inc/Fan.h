@@ -8,8 +8,8 @@
 #ifndef FAN_H_
 #define FAN_H_
 
-#include "ModbusMaster.h"
 #include "ModbusRegister.h"
+#include "ModbusMaster.h"
 #include <cstdio>
 
 /* Defined in main */
@@ -20,7 +20,7 @@ public:
 	Fan();
 	virtual ~Fan();
 
-	bool setFrequency(uint16_t freq);
+	bool 	setFrequency(uint16_t freq);
 	int16_t getFrequency();
 
 	static constexpr int16_t kFanError 	= -1;
@@ -29,7 +29,7 @@ private:
 	ModbusMaster node;
 	static constexpr uint16_t kMinFreq 	= 0; // Not used, probably not accurate either.
 	static constexpr uint16_t kMaxFreq 	= 20000;
-	static constexpr uint16_t kDelay 	= 500;
+	static constexpr uint16_t kDelay 	= 50;
 };
 
 #endif /* FAN_H_ */

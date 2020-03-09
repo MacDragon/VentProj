@@ -8,18 +8,19 @@
 #ifndef QEI_H_
 #define QEI_H_
 
-#include "chip.h"
 #include "DigitalIoPin.h"
 #include "LpcUart.h"
+#include "chip.h"
 
 class QEI {
 public:
-	QEI( LpcPinMap A, LpcPinMap B, uint16_t maxvel = 5);
+	QEI(LpcPinMap A, LpcPinMap B, uint16_t maxvel = 5);
 	virtual ~QEI();
 	int read();
+
 private:
 	bool ignore;
-	uint16_t maxvel;
+	uint16_t const maxvel;
 	uint8_t lastdir;
 
 };

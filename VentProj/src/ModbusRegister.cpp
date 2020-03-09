@@ -7,7 +7,7 @@
 
 #include "ModbusRegister.h"
 
-ModbusRegister::~ModbusRegister() {}
+ModbusRegister::~ModbusRegister() { /* Empty */ }
 
 ModbusRegister::operator int() {
 	uint8_t result = m.readHoldingRegisters(addr, 1);

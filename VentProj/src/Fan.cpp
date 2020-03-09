@@ -28,6 +28,8 @@ bool Fan::setFrequency(uint16_t freq) {
 	ModbusRegister Frequency { node, 1 };
 	ModbusRegister StatusWord { node, 3 };
 
+	freq *= 200; /* Convert from percentage to raw value */
+
 	if (freq > kMaxFreq)
 		freq = kMaxFreq;
 	else if (freq < kMinFreq)
@@ -45,6 +47,8 @@ bool Fan::setFrequency(uint16_t freq) {
 }
 
 int16_t Fan::getFrequency() {
-	ModbusRegister OutputFrequency{ node, 102 };
-	return static_cast<int16_t>(OutputFrequency); // -1 if failure
+	auto outputFrequency = static_cast<int16_t>(ModbusRegister{ node, 102 });
+	if (outputFrequency >= 0)
+		outputFrequency /= 200; // convert from raw value to percentage
+	return outputFrequency;
 }

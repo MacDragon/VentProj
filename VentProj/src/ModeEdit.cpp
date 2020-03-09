@@ -5,8 +5,7 @@
  *      Author: krl
  */
 
-#include <ModeEdit.h>
-#include <cstdio>
+#include "ModeEdit.h"
 
 std::atomic<ModeEdit::Mode> ModeEdit::fanMode { Automatic };
 constexpr char ModeEdit::kSubtitle[];
@@ -16,10 +15,11 @@ constexpr unsigned int ModeEdit::kErrorThreshold;
 ModeEdit::ModeEdit(LiquidCrystal& lcd, int const lowerLimit, int const upperLimit, Mode const mode)
 :	lcd{ lcd }, bar{ BarGraph(lcd, 16, upperLimit - lowerLimit, false) }, lowerLimit{ lowerLimit }, upperLimit{ upperLimit },
 	value{ lowerLimit }, edit{ lowerLimit }, focus{ false }, mode{ mode }, ErrTime{ millis() } {
+
 	switch ( mode ) {
 	case Manual :
 		title = "Fan Speed";
-		unit  = "% ";
+		unit  = "%";
 		break;
 
 	case Automatic :
@@ -54,7 +54,7 @@ void ModeEdit::accept() {
 	ErrTime = millis();
 }
 
-void ModeEdit::cancel() {
+inline void ModeEdit::cancel() {
 	accept(); // new menu doesn't have an actual cancel.
 }
 
@@ -71,17 +71,17 @@ void ModeEdit::display() {
 
 	lcd.setCursor(0, 0);
 	if (focus) { // item editor
-		lcd.print("%-9s[%3d]%s", title.c_str(), edit, unit.c_str());
+		lcd.print("%-9s[%3d]%-2s", title.c_str(), edit, unit.c_str());
 		lcd.setCursor(0, 1);
 		bar.draw(edit - lowerLimit);
 	} else {
 		if (millis() - ErrTime > kErrorThreshold)
-			lcd.print("%-9s %3d %s", "Set Fail:", value, unit.c_str());
+			lcd.print("%-9s %3d %-2s", "Set Fail:", value, unit.c_str());
 		else
-			lcd.print("%-9s %3d %s", title.c_str(), value, unit.c_str());
+			lcd.print("%-9s %3d %-2s", title.c_str(), value, unit.c_str());
 
 		lcd.setCursor(0, 1);
-		lcd.print("%-10s%3d %s", kSubtitle, observedValue, kSubUnit);
+		lcd.print("%-10s%3d %-2s", kSubtitle, observedValue, kSubUnit);
 	}
 }
 

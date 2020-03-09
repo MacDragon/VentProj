@@ -19,7 +19,7 @@ public:
 	Kp{ Kp }, Ki{ Ki }, Kd{ Kd }, sum_of_errors{ 0 }, last_error{ 0 } {}
 	virtual ~PID() {}
 
-	double calculate(T const target, T const current) {
+	constexpr double calculate(T const target, T const current) {
 		T error = target - current;
 		sum_of_errors += error;
 

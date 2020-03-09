@@ -46,10 +46,8 @@ Set to 1 to enable debugging features within class:
 
 /* _____STANDARD INCLUDES____________________________________________________ */
 // include types & constants of Wiring core API
-#include <cstdint>
-#include <cstddef>
-#include "word.h"
 #include "SerialPort.h"
+#include "word.h"
 #define BYTE (0xA5)
 
 uint32_t millis();

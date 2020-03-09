@@ -24,7 +24,7 @@ void UART0_IRQHandler(void)
 
 	/* Use default ring buffer handler. Override this with your own
 	   code if you need more capability. */
-	if(u0) u0->isr();
+	if (u0) u0->isr();
 }
 
 void UART1_IRQHandler(void)
@@ -33,7 +33,7 @@ void UART1_IRQHandler(void)
 
 	/* Use default ring buffer handler. Override this with your own
 	   code if you need more capability. */
-	if(u1) u1->isr();
+	if (u1) u1->isr();
 }
 
 void UART2_IRQHandler(void)
@@ -42,7 +42,7 @@ void UART2_IRQHandler(void)
 
 	/* Use default ring buffer handler. Override this with your own
 	   code if you need more capability. */
-	if(u2) u2->isr();
+	if (u2) u2->isr();
 }
 
 }
@@ -75,7 +75,7 @@ LpcUart::LpcUart(const LpcUartConfig &cfg) {
 
 	uart = nullptr; // set default value before checking which UART to configure
 
-	if(cfg.pUART == LPC_USART0) {
+	if (cfg.pUART == LPC_USART0) {
 		if(u0) return; // already exists
 		else u0 = this;
 		tx = SWM_UART0_TXD_O;
@@ -84,7 +84,7 @@ LpcUart::LpcUart(const LpcUartConfig &cfg) {
 		cts = SWM_UART0_CTS_I;
 		irqn = UART0_IRQn;
 	}
-	else if(cfg.pUART == LPC_USART1) {
+	else if (cfg.pUART == LPC_USART1) {
 		if (u1) return; // already exists
 		else u1 = this;
 		tx = SWM_UART1_TXD_O;
@@ -93,8 +93,8 @@ LpcUart::LpcUart(const LpcUartConfig &cfg) {
 		cts = SWM_UART1_CTS_I;
 		irqn = UART1_IRQn;
 	}
-	else if(cfg.pUART == LPC_USART2) {
-		if(u2) return; // already exists
+	else if (cfg.pUART == LPC_USART2) {
+		if (u2) return; // already exists
 		else u2 = this;
 		tx = SWM_UART2_TXD_O;
 		rx = SWM_UART2_RXD_I;
@@ -109,22 +109,22 @@ LpcUart::LpcUart(const LpcUartConfig &cfg) {
 	uart = cfg.pUART; // set the actual value after validity checking
 
 
-	if(cfg.tx.port >= 0) {
+	if (cfg.tx.port >= 0) {
 		Chip_IOCON_PinMuxSet(LPC_IOCON, cfg.tx.port, cfg.tx.pin, (IOCON_MODE_INACT | IOCON_DIGMODE_EN));
 		Chip_SWM_MovablePortPinAssign(tx, cfg.tx.port, cfg.tx.pin);
 	}
 
-	if(cfg.rx.port >= 0) {
+	if (cfg.rx.port >= 0) {
 		Chip_IOCON_PinMuxSet(LPC_IOCON, cfg.rx.port, cfg.rx.pin, (IOCON_MODE_INACT | IOCON_DIGMODE_EN));
 		Chip_SWM_MovablePortPinAssign(rx, cfg.rx.port, cfg.rx.pin);
 	}
 
-	if(use_cts) {
+	if (use_cts) {
 		Chip_IOCON_PinMuxSet(LPC_IOCON, cfg.cts.port, cfg.cts.pin, (IOCON_MODE_INACT | IOCON_DIGMODE_EN));
 		Chip_SWM_MovablePortPinAssign(cts, cfg.cts.port, cfg.cts.pin);
 	}
 
-	if(use_rts) {
+	if (use_rts) {
 		Chip_IOCON_PinMuxSet(LPC_IOCON, cfg.rts.port, cfg.rts.pin, (IOCON_MODE_INACT | IOCON_DIGMODE_EN));
 		Chip_SWM_MovablePortPinAssign(rts, cfg.rts.port, cfg.rts.pin);
 	}
@@ -135,7 +135,7 @@ LpcUart::LpcUart(const LpcUartConfig &cfg) {
 	Chip_UART_ConfigData(uart, cfg.data);
 	Chip_UART_SetBaud(uart, cfg.speed);
 
-	if(use_rts && cfg.rs485) {
+	if (use_rts && cfg.rs485) {
 		uart->CFG |= (1 << 20); // enable rs485 mode
 		//uart->CFG |= (1 << 18); // OE turnaraound time
 		uart->CFG |= (1 << 21);// driver enable polarity (active high)
@@ -158,73 +158,62 @@ LpcUart::LpcUart(const LpcUartConfig &cfg) {
 }
 
 LpcUart::~LpcUart() {
-	if(uart != nullptr) {
+	if (uart != nullptr) {
 		NVIC_DisableIRQ(irqn);
 		Chip_UART_IntDisable(uart, UART_INTEN_RXRDY);
 		Chip_UART_IntDisable(uart, UART_INTEN_TXRDY);
 
-		if(uart == LPC_USART0)
+		if (uart == LPC_USART0)
 			u0 = nullptr;
-		else if(uart == LPC_USART1)
+		else if (uart == LPC_USART1)
 			u1 = nullptr;
-		else if(uart == LPC_USART2)
+		else if (uart == LPC_USART2)
 			u2 = nullptr;
 	}
 }
 
 
-int  LpcUart::free()
-{
+int  LpcUart::free() {
 	return RingBuffer_GetCount(&txring);;
 }
 
-int  LpcUart::peek()
-{
+int  LpcUart::peek() {
 	return RingBuffer_GetCount(&rxring);
 }
 
-int  LpcUart::read(char &c)
-{
+int  LpcUart::read(char &c) {
 	return Chip_UART_ReadRB(uart, &rxring, &c, 1);
 }
 
-int  LpcUart::read(char *buffer, int len)
-{
+int  LpcUart::read(char *buffer, int len) {
 	return Chip_UART_ReadRB(uart, &rxring, buffer, len);
 }
 
-int LpcUart::write(char c)
-{
+int LpcUart::write(char c) {
 	return Chip_UART_SendRB(uart, &txring, &c, 1);
 }
 
-int LpcUart::write(const char *s)
-{
+int LpcUart::write(const char *s) {
 	return Chip_UART_SendRB(uart, &txring, s, strlen(s));
 }
 
-int LpcUart::write(const char *buffer, int len)
-{
+int LpcUart::write(const char *buffer, int len) {
 	return Chip_UART_SendRB(uart, &txring, buffer, len);
 }
 
-void LpcUart::txbreak(bool brk)
-{
-	// break handling not implemented yeet
+void LpcUart::txbreak(bool brk) {
+	// break handling not implemented yet
 }
 
-bool LpcUart::rxbreak()
-{
-	// break handling not implemented yeet
+bool LpcUart::rxbreak() {
+	// break handling not implemented yet
 	return false;
 }
 
-void LpcUart::speed(int bps)
-{
+void LpcUart::speed(int bps) {
 	Chip_UART_SetBaud(uart, bps);
 }
 
-bool LpcUart::txempty()
-{
+bool LpcUart::txempty() {
 	return (RingBuffer_GetCount(&txring) == 0);
 }

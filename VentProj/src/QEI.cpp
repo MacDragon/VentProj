@@ -76,7 +76,7 @@ QEI::QEI( LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(max
 // 		Chip_IOCON_PinMuxSet(LPC_IOCON, PD4_Port, PD4_Pin, IOCON_DIGMODE_EN | IOCON_MODE_PULLUP);
 
 		// max size of int16, so that can cast as a signed short int and have counter clockwise values show as negative
-		LPC_QEI->MAXPOS=65535;
+		LPC_QEI->MAXPOS = UINT16_MAX;
 
 //		LPC_QEI->IE = 0b1;
 		LPC_QEI->IES = 1 << 5;
@@ -91,12 +91,12 @@ QEI::QEI( LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(max
 //		LPC_QEI->CONF |= (1<<2);
 
 		// add some level of filtering to prevent mistriggers, low enough value that humanly can't move knob fast enough to misread.
-		LPC_QEI->FILTERPHA=100;
-		LPC_QEI->FILTERPHB=100;
+		LPC_QEI->FILTERPHA = 100;
+		LPC_QEI->FILTERPHB = 100;
 //		LPC_QEI->FILTERINX=100; // Not using index
-		LPC_QEI->LOAD=SystemCoreClock/10; // use 100ms period for velocity filtering, shorter results in too changeable a value.
+		LPC_QEI->LOAD = SystemCoreClock / 10; // use 100ms period for velocity filtering, shorter results in too changeable a value.
 // reset velocity counter
-		LPC_QEI->CON=( 1 << 2 );
+		LPC_QEI->CON = 1 << 2;
 }
 
 QEI::~QEI() {
@@ -112,7 +112,7 @@ int QEI::read() {
 	uint8_t dir = LPC_QEI->STAT;
 
 	// get current velocity reading, convert scale to be useful as multiplier and ensure it is reads at least one
-	uint16_t vel=(LPC_QEI->CAP/6)+1;
+	uint16_t vel = (LPC_QEI->CAP / 6) + 1;
 
 	// ignore every other input as two inputs per notch on input.
 
@@ -123,9 +123,9 @@ int QEI::read() {
 
 		if ( lastdir != dir ) vel = 1; // if switched directions, assume minimum velocity to eliminate spurious jumps on change.
 
-		posupd=posread*vel; // calculate how much to move position by.
+		posupd = posread * vel; // calculate how much to move position by.
 
-		if ( posupd == 0 ) posupd = 1 *(dir ? -1 : 1 ); // an input was detected, ensure at least one value movement regardless of calculation.
+		if ( posupd == 0 ) posupd = 1 * (dir ? -1 : 1 ); // an input was detected, ensure at least one value movement regardless of calculation.
 		ignore = true; // ignore next reading.
 		lastdir = dir; // store current direction so change can be detected.
 	} else if ( abs(posread) > 0 && ignore ){
@@ -133,8 +133,8 @@ int QEI::read() {
 	}
 
 	// reset position to 0, so that next read will be relative to new position.
-	LPC_QEI->CON=1;
-    LPC_QEI->CLR=0xFFFF;
+	LPC_QEI->CON = 1;
+    LPC_QEI->CLR = 0xFFFF;
 
 	return posupd; // return how much change occurred since last call
 }

@@ -1,12 +1,9 @@
 #ifndef LiquidCrystal_h
 #define LiquidCrystal_h
 
-
-#include <cstddef>
+#include "DigitalIoPin.h"
 #include <string>
 #include "chip.h"
-#include <memory>
-#include "DigitalIoPin.h"
 
 // commands
 #define LCD_CLEARDISPLAY 0x01

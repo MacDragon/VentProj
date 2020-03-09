@@ -8,8 +8,6 @@
 #ifndef PROPERTYEDIT_H_
 #define PROPERTYEDIT_H_
 
-#include <cstdint>
-
 /* Frankstein's monster interface that also follows the observer pattern */
 class PropertyEdit {
 public:
