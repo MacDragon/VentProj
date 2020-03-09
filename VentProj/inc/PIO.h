@@ -58,13 +58,6 @@
 #define PA5_Port	0
 #define PA5_Pin		7
 
-
-
-
-
-
-
-
 #define SW1_Port	0
 #define SW1_Pin		17
 
@@ -80,9 +73,5 @@
 #define LEDGreen_Port	0
 #define LEDGreen_Pin	3
 
-
 #define LEDBlue_Port	1
 #define LEDBlue_Pin		1
-
-
-

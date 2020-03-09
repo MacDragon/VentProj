@@ -22,7 +22,7 @@ void SimpleMenu::event(MenuItem::menuEvent e, int amount) {
 		return;
 
 	if (!items[position]->event(e, amount)) {
-		if ( e == MenuItem::ok && ++position >= static_cast<int>(items.size())) // use ok button to proceed through menu
+		if (e == MenuItem::ok && ++position >= static_cast<int>(items.size())) // use ok button to proceed through menu
 			position = 0;
 
 		items[position]->event(MenuItem::show);

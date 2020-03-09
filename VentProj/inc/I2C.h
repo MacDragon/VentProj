@@ -17,6 +17,7 @@ public:
 	bool write(uint8_t const devAddr, uint8_t const * const txBuffPtr, uint16_t const txSize) const;
 	bool read(uint8_t const devAddr, uint8_t* const rxBuffPtr, uint16_t const rxSize) const;
 	bool transaction(uint8_t const devAddr, uint8_t const * const txBuffPtr, uint16_t const txSize, uint8_t* const rxBuffPtr, uint16_t const rxSize) const;
+
 private:
 	LPC_I2C_T* device;
 	static uint32_t I2CM_XferBlocking(LPC_I2C_T* const pI2C, I2CM_XFER_T* const xfer);

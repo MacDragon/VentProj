@@ -14,22 +14,27 @@
 
 void Sleep(unsigned int ms);
 
-class PressureSensor : public Subject {
+class SDP650 : public Subject {
 public:
-	PressureSensor(const I2C& i2c);
-	virtual ~PressureSensor();
-	std::pair<bool, int16_t> getPressure();
+	SDP650(I2C&& i2c);
+	virtual ~SDP650();
+	int16_t getPressure();
 
 	void attach(PropertyEdit* observer);
 	void notify();
 
+	static constexpr int16_t kI2CError { INT16_MAX };
+
 private:
 	I2C i2c;
-	std::vector<PropertyEdit*> observers;
 	int16_t pressure;
-	static constexpr uint8_t sensorReadCMD { 0xF1 };
-	static constexpr uint8_t i2c_pressure_address { 0x40 };
 	uint8_t sensorData[3];
+	std::vector<PropertyEdit*> observers;
+
+	static constexpr uint8_t kSDP650ReadCMD { 0xF1 };
+	static constexpr uint8_t kSDP650Address { 0x40 };
+	static constexpr uint8_t kScaleFactor   { 240U };
+	static constexpr float 	 kAltCorrection { 0.95 };
 };
 
 #endif /* PRESSURESENSOR_H_ */

@@ -83,7 +83,7 @@ bool I2C::transaction(uint8_t const devAddr, uint8_t const * const txBuffPtr, ui
 	};
 
 	// make sure that master is idle
-	while(!Chip_I2CM_IsMasterPending(device));
+	while (!Chip_I2CM_IsMasterPending(device));
 
 	I2CM_XferBlocking(device, &i2cmXferRec);
 	/* Chip_I2CM_XferBlocking returns before stop condition is fully completed,

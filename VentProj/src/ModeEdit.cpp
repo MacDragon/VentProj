@@ -8,29 +8,23 @@
 #include <ModeEdit.h>
 #include <cstdio>
 
-std::atomic<ModeEdit::Mode> ModeEdit::fanMode{ Automatic };
+std::atomic<ModeEdit::Mode> ModeEdit::fanMode { Automatic };
+constexpr char ModeEdit::kSubtitle[];
+constexpr char ModeEdit::kSubUnit[];
+constexpr unsigned int ModeEdit::kErrorThreshold;
 
-ModeEdit::ModeEdit(Subject& subject, LiquidCrystal& lcd, int const lowerLimit, int const upperLimit, Mode const mode)
-:	subject{ subject }, lcd{ lcd }, bar{ BarGraph(lcd, 16, upperLimit-lowerLimit, false) }, lowerLimit{ lowerLimit }, upperLimit{ upperLimit }, value{ lowerLimit }, edit{ lowerLimit },
-	focus{ false }, mode{ mode }, ErrTime{ millis() } {
-
-	subject.attach(this);
-
+ModeEdit::ModeEdit(LiquidCrystal& lcd, int const lowerLimit, int const upperLimit, Mode const mode)
+:	lcd{ lcd }, bar{ BarGraph(lcd, 16, upperLimit - lowerLimit, false) }, lowerLimit{ lowerLimit }, upperLimit{ upperLimit },
+	value{ lowerLimit }, edit{ lowerLimit }, focus{ false }, mode{ mode }, ErrTime{ millis() } {
 	switch ( mode ) {
 	case Manual :
 		title = "Fan Speed";
-		subTitle = "Fan Speed";
-		editUnit = "% ";
-		dispTitle = "Cur Pres";
-		dispUnit = "Pa";
+		unit  = "% ";
 		break;
 
 	case Automatic :
 		title = "Pres Req";
-		subTitle = "Pres Req";
-		editUnit = "Pa";
-		dispTitle = "Cur Pres";
-		dispUnit = "Pa";
+		unit  = "Pa";
 		break;
 	}
 }
@@ -74,21 +68,35 @@ bool ModeEdit::getFocus() const {
 
 void ModeEdit::display() {
 	fanMode = mode;
+
 	lcd.setCursor(0, 0);
 	if (focus) { // item editor
-		lcd.print("%-9s[%3d]%s", subTitle.c_str(), edit, editUnit.c_str());
+		lcd.print("%-9s[%3d]%s", title.c_str(), edit, unit.c_str());
 		lcd.setCursor(0, 1);
-		bar.draw(edit-lowerLimit);
+		bar.draw(edit - lowerLimit);
 	} else {
-		if (millis() - ErrTime > error_threshold)
-			lcd.print("%-9s %3d %s", "Set Fail:", value, editUnit.c_str());
+		if (millis() - ErrTime > kErrorThreshold)
+			lcd.print("%-9s %3d %s", "Set Fail:", value, unit.c_str());
 		else
-			lcd.print("%-9s %3d %s", title.c_str(), value, editUnit.c_str());
+			lcd.print("%-9s %3d %s", title.c_str(), value, unit.c_str());
 
 		lcd.setCursor(0, 1);
-		lcd.print("%-10s%3d %s", dispTitle.c_str(), observedValue, dispUnit.c_str());
+		lcd.print("%-10s%3d %s", kSubtitle, observedValue, kSubUnit);
 	}
+}
 
+int ModeEdit::getValue() const {
+	return value;
+}
+void ModeEdit::setValue(int value) {
+	if (value < lowerLimit)
+		value = lowerLimit;
+
+	this->value = this->edit = value;
+}
+
+void ModeEdit::observe(Subject& subject) {
+	subject.attach(this);
 }
 
 void ModeEdit::update(int value) {
@@ -105,15 +113,3 @@ void ModeEdit::update(int value) {
 		break;
 	}
 }
-
-int ModeEdit::getValue() const {
-	return value;
-}
-void ModeEdit::setValue(int value) {
-	if (value < lowerLimit)
-		value = lowerLimit;
-
-	this->value = this->edit = value;
-}
-
-

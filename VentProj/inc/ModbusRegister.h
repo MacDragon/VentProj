@@ -17,6 +17,7 @@ public:
 	virtual ~ModbusRegister();
 	operator int();
 	const ModbusRegister& operator=(int value);
+
 private:
 	ModbusMaster& m;
 	int const addr;

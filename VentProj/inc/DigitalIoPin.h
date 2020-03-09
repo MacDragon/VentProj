@@ -11,8 +11,14 @@
 
 class DigitalIoPin {
 public:
-	DigitalIoPin(int const port, int const pin, bool const input, bool const pullup, bool const invert);
-	virtual ~DigitalIoPin();
+	DigitalIoPin(int const port, int const pin, bool const input, bool const pullup, bool const invert) :
+	port { port }, pin { pin }, input { input }, invert { invert }
+	{
+		LPC_IOCON->PIO[port][pin] = (1U + pullup) << 3 | 1U << 7 | invert << 6;
+		LPC_GPIO->DIR[port] = input ? LPC_GPIO->DIR[port] & ~(1UL << pin) : LPC_GPIO->DIR[port] | 1UL << pin;
+	}
+
+	virtual ~DigitalIoPin() { /* Empty */ }
 
 	bool read() const {
 		return static_cast<bool>(LPC_GPIO->B[port][pin]);

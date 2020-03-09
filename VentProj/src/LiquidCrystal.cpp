@@ -12,7 +12,7 @@ void delayMicroseconds(uint64_t us) {
 	Chip_RIT_SetCompareValue(LPC_RITIMER, compval);
 	Chip_RIT_SetCounter(LPC_RITIMER, 0);
 	Chip_RIT_Enable(LPC_RITIMER);
-	while(!Chip_RIT_GetIntStatus(LPC_RITIMER));
+	while (!Chip_RIT_GetIntStatus(LPC_RITIMER));
 	Chip_RIT_Disable(LPC_RITIMER);
 	Chip_RIT_ClearIntStatus(LPC_RITIMER);
 }

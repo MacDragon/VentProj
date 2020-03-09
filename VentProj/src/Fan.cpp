@@ -7,7 +7,7 @@
 
 #include "Fan.h"
 
-Fan::Fan() : node{ 2 }, freq{ 0 } {
+Fan::Fan() : node{ 2 } {
 	ModbusRegister ControlWord { node, 0 };
 	ModbusRegister StatusWord { node, 3 };
 
@@ -18,8 +18,6 @@ Fan::Fan() : node{ 2 }, freq{ 0 } {
 	ControlWord = 0x047F;
 	while (!(static_cast<int>(StatusWord) & 0x100))
 		Sleep(10);
-
-	setFrequency(freq);
 }
 
 Fan::~Fan() { /* Empty */ }
@@ -30,15 +28,15 @@ bool Fan::setFrequency(uint16_t freq) {
 	ModbusRegister Frequency { node, 1 };
 	ModbusRegister StatusWord { node, 3 };
 
-	if (freq > max_freq)
-		freq = max_freq;
-	else if (freq < min_freq)
-		freq = min_freq;
+	if (freq > kMaxFreq)
+		freq = kMaxFreq;
+	else if (freq < kMinFreq)
+		freq = kMinFreq;
 
 	Frequency = freq;
 
 	do {
-		Sleep(delay);
+		Sleep(kDelay);
 		auto result = static_cast<int>(StatusWord);
 		atSetpoint = (result >= 0 && result & 0x0100);
 	} while (++ctr < 20 && !atSetpoint);

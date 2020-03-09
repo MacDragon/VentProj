@@ -12,19 +12,19 @@
 #include <atomic>
 #include "board.h"
 
-#include "PressureSensor.h"
 #include "LiquidCrystal.h"
 #include "SimpleMenu.h"
 #include "ModeEdit.h"
+#include "SDP650.h"
 #include "I2C.h"
 #include "Fan.h"
 #include "PID.h"
 #include "PIO.h"
 #include "QEI.h"
 
-static constexpr uint32_t tickrate_hz { 1000 };
-static constexpr uint32_t cancel_time { 1000 }; // 2000ms
-static constexpr uint32_t debounce_time { 100 }; // 100ms. Lazy debouncing.
+static constexpr uint32_t kTickrateHz { 1000 };
+static constexpr uint32_t kCancelTime { 1000 }; // 2000ms
+static constexpr uint32_t kDebounceTime { 100 }; // 100ms. Lazy debouncing.
 static std::atomic<uint32_t> counter, systicks, last_press;
 static SimpleMenu* menu { nullptr };
 static QEI* qei { nullptr };
@@ -33,9 +33,9 @@ extern "C" {
 void PIN_INT0_IRQHandler(void) {
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
 
-	if(systicks - last_press > debounce_time) {
+	if (systicks - last_press > kDebounceTime) {
 		last_press = systicks.load();
-		if ( menu != nullptr )
+		if (menu != nullptr)
 			menu->event(MenuItem::ok);
 
 	}
@@ -53,7 +53,7 @@ void QEI_IRQHandler(void){
 }
 
 void SysTick_Handler(void) {
-	if (++systicks - last_press >= cancel_time) {
+	if (++systicks - last_press >= kCancelTime) {
 		last_press = systicks.load();
 		if ( menu != nullptr ) menu->event(MenuItem::back, 0);
 	}
@@ -63,7 +63,7 @@ void SysTick_Handler(void) {
 		int qeichange = qei->read();
 		if ( qeichange != 0 ){
 			last_press = systicks.load();
-			for (int i=0; i < abs(qeichange); i++)
+			for (int i = 0; i < abs(qeichange); i++)
 				menu->event(MenuItem::change, qeichange);
 		}
 	}
@@ -75,7 +75,7 @@ void SysTick_Handler(void) {
 
 void Sleep(unsigned int ms) {
 	counter = ms;
-	while(counter > 0)
+	while (counter > 0)
 		__WFI();
 }
 
@@ -88,7 +88,7 @@ int main(void) {
 	Board_Init();
 
 	/* Systick setup */
-	SysTick_Config(SystemCoreClock / tickrate_hz);
+	SysTick_Config(SystemCoreClock / kTickrateHz);
 
 	/* Input setup */
 	DigitalIoPin button(PD3_Port, PD3_Pin, true, true, true);
@@ -113,23 +113,25 @@ int main(void) {
 	Fan fan;
 
 	/* Pressure Sensor setup */
-	PressureSensor pressureSensor(I2C{});
+	SDP650 pressureSensor(I2C{});
 
 	/* Menu setup */
 	menu = new SimpleMenu;
-	ModeEdit autoEdit(pressureSensor, lcd, 30, 120, ModeEdit::Automatic);
+	ModeEdit autoEdit(lcd, 30, 120, ModeEdit::Automatic);
+	autoEdit.observe(pressureSensor);
 	menu->addItem(autoEdit);
-	ModeEdit manualEdit(pressureSensor, lcd, 0, 100, ModeEdit::Manual);
+	ModeEdit manualEdit(lcd, 0, 100, ModeEdit::Manual);
+	manualEdit.observe(pressureSensor);
 	menu->addItem(manualEdit);
 
 	/* PID setup */
 	PID<int> pid(255, 0, 1.35);
 
-	while(1) {
+	while (1) {
 		auto fanFreq = fan.getFrequency();
 		auto pressure_diff = pressureSensor.getPressure();
 
-		if (fanFreq != Fan::fan_error && pressure_diff.first) {
+		if (fanFreq != Fan::kFanError && pressure_diff != SDP650::kI2CError) {
 			switch (ModeEdit::fanMode) {
 			case ModeEdit::Manual:
 				if (fanFreq / 200 != manualEdit.getValue())
@@ -137,8 +139,10 @@ int main(void) {
 				break;
 
 			case ModeEdit::Automatic:
-				if (abs(pressure_diff.second - autoEdit.getValue()) > 1)
-					fan.setFrequency(fanFreq + pid.calculate(autoEdit.getValue(), pressure_diff.second));
+				if (abs(pressure_diff - autoEdit.getValue()) > 1) {
+					fan.setFrequency(fanFreq + pid.calculate(autoEdit.getValue(), pressure_diff));
+					manualEdit.setValue(fan.getFrequency());
+				}
 				break;
 			}
 		} else {

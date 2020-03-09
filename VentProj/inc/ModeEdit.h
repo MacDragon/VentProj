@@ -17,16 +17,12 @@
 
 uint32_t millis();
 
-struct DisplayCfg {
-
-};
-
 class ModeEdit: public PropertyEdit {
 public:
 	enum Mode { Manual, Automatic };
 	static std::atomic<Mode> fanMode;
 
-	ModeEdit(Subject& subject, LiquidCrystal& lcd, int const lowerLimit, int const upperLimit, Mode const mode);
+	ModeEdit(LiquidCrystal& lcd, int const lowerLimit, int const upperLimit, Mode const mode);
 	virtual ~ModeEdit();
 
 	/* Menu interface implementation */
@@ -38,24 +34,26 @@ public:
 	void setFocus(bool focus);
 	bool getFocus() const;
 	void display();
-
-	/* Observer pattern interface implementation */
-	void update(int value);
-
 	int  getValue() const;
 	void setValue(int value);
 
+	/* Observer pattern */
+	void observe(Subject& subject);
+	void update(int value);
+
 private:
-	Subject& subject;
 	LiquidCrystal& lcd;
 	BarGraph bar;
 
-	std::string title, subTitle, editUnit, dispTitle, dispUnit;
+	std::string title, unit;
 	int const lowerLimit, upperLimit;
 	int value, edit, observedValue;
 	bool focus;
 	Mode const mode;
 	unsigned int ErrTime;
-	static constexpr unsigned int error_threshold = 10000; //  seconds
+
+	static constexpr char kSubtitle[] = "Cur Pres";
+	static constexpr char kSubUnit[]  = "Pa";
+	static constexpr unsigned int kErrorThreshold = 10000;
 };
 #endif /* INTEGEREDIT_H_ */
