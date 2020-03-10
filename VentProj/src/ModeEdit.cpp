@@ -50,7 +50,7 @@ void ModeEdit::change(int amount) {
 }
 
 void ModeEdit::accept() {
-	value = edit;
+	value = edit.load();
 	ErrTime = millis();
 }
 
@@ -71,14 +71,14 @@ void ModeEdit::display() {
 
 	lcd.setCursor(0, 0);
 	if (focus) { // item editor
-		lcd.print("%-9s[%3d]%-2s", title.c_str(), edit, unit.c_str());
+		lcd.print("%-9s[%3d]%-2s", title.c_str(), edit.load(), unit.c_str());
 		lcd.setCursor(0, 1);
 		bar.draw(edit - lowerLimit);
 	} else {
 		if (millis() - ErrTime > kErrorThreshold)
-			lcd.print("%-9s %3d %-2s", "Set Fail:", value, unit.c_str());
+			lcd.print("%-9s %3d %-2s", "Set Fail:", value.load(), unit.c_str());
 		else
-			lcd.print("%-9s %3d %-2s", title.c_str(), value, unit.c_str());
+			lcd.print("%-9s %3d %-2s", title.c_str(), value.load(), unit.c_str());
 
 		lcd.setCursor(0, 1);
 		lcd.print("%-10s%3d %-2s", kSubtitle, observedValue, kSubUnit);
@@ -91,8 +91,11 @@ int ModeEdit::getValue() const {
 void ModeEdit::setValue(int value) {
 	if (value < lowerLimit)
 		value = lowerLimit;
+	else if (value > upperLimit)
+		value = upperLimit;
 
-	this->value = this->edit = value;
+	this->edit = value;
+	this->value = value;
 }
 
 void ModeEdit::observe(Subject& subject) {

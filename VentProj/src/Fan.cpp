@@ -11,6 +11,10 @@ Fan::Fan() : node{ 2 } {
 	ModbusRegister ControlWord { node, 0 };
 	ModbusRegister StatusWord { node, 3 };
 
+	/* Not stepping through the state machine laid out
+	 * in the documentation. If it fails and takes too
+	 * long, the watchdog timer will cause a reset.
+	 */
 	ControlWord = 0x0406;
 	while (!(static_cast<int>(StatusWord) & 0x001))
 		Sleep(10);

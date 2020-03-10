@@ -47,7 +47,8 @@ private:
 
 	std::string title, unit;
 	int const lowerLimit, upperLimit;
-	int value, edit, observedValue;
+	std::atomic<int> value, edit;
+	int observedValue;
 	bool focus;
 	Mode const mode;
 	unsigned int ErrTime;
