@@ -64,8 +64,6 @@ device{ LPC_I2C0 } {
 	NVIC_DisableIRQ(I2C0_IRQn);
 }
 
-I2C::~I2C() { /* Empty */ }
-
 bool I2C::write(uint8_t const devAddr, uint8_t const * const txBuffPtr, uint16_t const txSize) const {
 	return transaction(devAddr, txBuffPtr, txSize, nullptr, 0);
 }

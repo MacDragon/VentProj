@@ -23,7 +23,6 @@ public:
 	static std::atomic<Mode> fanMode;
 
 	ModeEdit(LiquidCrystal& lcd, int const lowerLimit, int const upperLimit, Mode const mode);
-	virtual ~ModeEdit();
 
 	/* Menu interface implementation */
 	void increment();

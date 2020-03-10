@@ -17,9 +17,8 @@
 class SimpleMenu {
 public:
 	SimpleMenu();
-	virtual ~SimpleMenu();
 	void addItem(PropertyEdit& pe);
-	void event(MenuItem::menuEvent e, int amount = 1);
+	void event(MenuItem::MenuEvent e, int amount = 1);
 
 private:
 	std::vector<std::unique_ptr<MenuItem>> items;

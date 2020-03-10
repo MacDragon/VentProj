@@ -44,7 +44,6 @@ Arduino library for communicating with Modbus slaves over RS232/485 (via RTU pro
 ModbusMaster::ModbusMaster(uint8_t const u8MBSlave, uint8_t const u8SerialPort, uint16_t const u16BaudRate)
 : _u8MBSlave { u8MBSlave }, _u8SerialPort { (u8SerialPort > 3) ? static_cast<uint8_t>(0) : u8SerialPort }
 , _u8TransmitBufferIndex{ 0 }, u16TransmitBufferLength{ 0 }, _idle{ nullptr } {
-	// Intentional weird formatting in the initializer list because eclipse is awful at knowing how to format C++
 	MBSerial.begin(u16BaudRate);
 }
 

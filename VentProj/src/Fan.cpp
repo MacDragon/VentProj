@@ -24,8 +24,6 @@ Fan::Fan() : node{ 2 } {
 		Sleep(10);
 }
 
-Fan::~Fan() { /* Empty */ }
-
 bool Fan::setFrequency(uint16_t freq) {
 	int  ctr { 0 };
 	bool atSetpoint { false };

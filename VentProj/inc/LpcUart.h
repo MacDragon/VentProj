@@ -32,7 +32,6 @@ public:
 	LpcUart(const LpcUartConfig &cfg);
 	LpcUart(const LpcUart &) = delete;
 	virtual ~LpcUart();
-
 	int  free(); /* get amount of free space in transmit buffer */
 	int  peek(); /* get number of received characters in receive buffer */
 	int  write(char c);

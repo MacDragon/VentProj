@@ -15,7 +15,6 @@
 class QEI {
 public:
 	QEI(LpcPinMap A, LpcPinMap B, uint16_t maxvel = 5);
-	virtual ~QEI();
 	int read();
 
 private:

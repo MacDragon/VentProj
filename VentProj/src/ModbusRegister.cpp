@@ -7,8 +7,6 @@
 
 #include "ModbusRegister.h"
 
-ModbusRegister::~ModbusRegister() { /* Empty */ }
-
 ModbusRegister::operator int() {
 	uint8_t result = m.readHoldingRegisters(addr, 1);
 	// check if we were able to read

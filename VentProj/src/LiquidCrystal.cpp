@@ -42,16 +42,14 @@ LiquidCrystal::LiquidCrystal(DigitalIoPin* const rs, DigitalIoPin* const enable,
 }
 
 void LiquidCrystal::begin(uint8_t cols, uint8_t lines, uint8_t dotsize) {
-	if (lines > 1) {
+	if (lines > 1)
 		_displayfunction |= LCD_2LINE;
-	}
 	_numlines = lines;
 	_currline = 0;
 
 	// for some 1 line displays you can select a 10 pixel high font
-	if ((dotsize != 0) && (lines == 1)) {
+	if ((dotsize != 0) && (lines == 1))
 		_displayfunction |= LCD_5x10DOTS;
-	}
 
 	// SEE PAGE 45/46 FOR INITIALIZATION SPECIFICATION!
 	// according to datasheet, we need at least 40ms after power rises above 2.7V
@@ -126,8 +124,7 @@ void LiquidCrystal::home() {
 	delayMicroseconds(2000);  // this command takes a long time!
 }
 
-void LiquidCrystal::setCursor(uint8_t col, uint8_t row)
-{
+void LiquidCrystal::setCursor(uint8_t col, uint8_t row) {
 	int row_offsets[] = { 0x00, 0x40, 0x14, 0x54 };
 	if ( row >= _numlines )
 		row = _numlines - 1;    // we count rows starting w/0
@@ -208,7 +205,6 @@ void LiquidCrystal::createChar(uint8_t location, uint8_t charmap[]) {
 }
 
 /*********** mid level commands, for sending data/cmds */
-
 inline void LiquidCrystal::command(uint8_t value) {
 	send(value, LOW);
 }

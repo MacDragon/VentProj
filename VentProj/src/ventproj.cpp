@@ -8,14 +8,12 @@
 ===============================================================================
  */
 
-#include <cr_section_macros.h>
-#include <atomic>
-#include "board.h"
-
 #include "LiquidCrystal.h"
 #include "SimpleMenu.h"
 #include "ModeEdit.h"
 #include "SDP650.h"
+#include "board.h"
+#include <atomic>
 #include "Fan.h"
 #include "PID.h"
 #include "PIO.h"
@@ -30,13 +28,12 @@ static QEI* qei { nullptr };
 
 extern "C" {
 void PIN_INT0_IRQHandler(void) {
-	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-
 	if (systicks - last_press > kDebounceTime) {
 		last_press = systicks.load();
 		if (menu != nullptr)
 			menu->event(MenuItem::ok);
 	}
+	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
 }
 
 void QEI_IRQHandler(void){

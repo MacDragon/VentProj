@@ -10,7 +10,6 @@
 #include "QEI.h"
 #include <stdlib.h>
 
-
 /**
  * @brief Quadrature Encoder Interface register block structure
  */
@@ -97,10 +96,6 @@ QEI::QEI( LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(max
 		LPC_QEI->LOAD = SystemCoreClock / 10; // use 100ms period for velocity filtering, shorter results in too changeable a value.
 // reset velocity counter
 		LPC_QEI->CON = 1 << 2;
-}
-
-QEI::~QEI() {
-	// TODO Auto-generated destructor stub
 }
 
 int QEI::read() {

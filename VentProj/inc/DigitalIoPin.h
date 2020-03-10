@@ -19,7 +19,7 @@ public:
 		LPC_GPIO->DIR[port] = input ? LPC_GPIO->DIR[port] & ~(1UL << pin) : LPC_GPIO->DIR[port] | 1UL << pin;
 	}
 
-	virtual ~DigitalIoPin() { /* Empty */ }
+	//virtual ~DigitalIoPin() { /* Empty */ }
 
 	bool read() const {
 		return static_cast<bool>(LPC_GPIO->B[port][pin]);

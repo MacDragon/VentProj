@@ -17,7 +17,6 @@ class PID {
 public:
 	constexpr PID(double const Kp, double const Ki, double const Kd) :
 	Kp{ Kp }, Ki{ Ki }, Kd{ Kd }, sum_of_errors{ 0 }, last_error{ 0 } {}
-	virtual ~PID() {}
 
 	constexpr double calculate(T const target, T const current) {
 		T error = target - current;

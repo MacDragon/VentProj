@@ -7,11 +7,7 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(PropertyEdit& property) : pe{ property } { /* Empty */ }
-
-MenuItem::~MenuItem() { /* Empty */ }
-
-bool MenuItem::event(menuEvent e, int amount) {
+bool MenuItem::event(MenuEvent e, int amount) {
 	bool handled = true;
 
 	switch(e) {

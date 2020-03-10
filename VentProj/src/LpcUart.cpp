@@ -18,8 +18,7 @@ extern "C" {
  * @brief	UART interrupt handler using ring buffers
  * @return	Nothing
  */
-void UART0_IRQHandler(void)
-{
+void UART0_IRQHandler(void) {
 	/* Want to handle any errors? Do it here. */
 
 	/* Use default ring buffer handler. Override this with your own
@@ -27,8 +26,7 @@ void UART0_IRQHandler(void)
 	if (u0) u0->isr();
 }
 
-void UART1_IRQHandler(void)
-{
+void UART1_IRQHandler(void) {
 	/* Want to handle any errors? Do it here. */
 
 	/* Use default ring buffer handler. Override this with your own
@@ -36,17 +34,14 @@ void UART1_IRQHandler(void)
 	if (u1) u1->isr();
 }
 
-void UART2_IRQHandler(void)
-{
+void UART2_IRQHandler(void) {
 	/* Want to handle any errors? Do it here. */
 
 	/* Use default ring buffer handler. Override this with your own
 	   code if you need more capability. */
 	if (u2) u2->isr();
 }
-
 }
-
 
 void LpcUart::isr() {
 	Chip_UART_IRQRBHandler(uart, &rxring, &txring);

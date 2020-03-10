@@ -45,7 +45,6 @@
 
 class LiquidCrystal {
 public:
-
 	LiquidCrystal(DigitalIoPin* const rs, DigitalIoPin* const enable, DigitalIoPin* const d0, DigitalIoPin* const d1, DigitalIoPin* const d2, DigitalIoPin* const d3);
 
 	void begin(uint8_t cols, uint8_t rows, uint8_t charsize = LCD_5x8DOTS);

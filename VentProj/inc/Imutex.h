@@ -13,8 +13,7 @@
 
 class Imutex {
 public:
-	Imutex();
-	~Imutex();
+	constexpr Imutex() : enable(false) { /* Empty */ }
 	void lock();
 	void unlock();
 private:

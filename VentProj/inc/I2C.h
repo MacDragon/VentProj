@@ -13,7 +13,6 @@
 class I2C {
 public:
 	I2C(unsigned int device_number = 0, unsigned int speed = 10000, unsigned int clock_divider = 40, unsigned int i2c_mode = IOCON_SFI2C_EN);
-	virtual ~I2C();
 	bool write(uint8_t const devAddr, uint8_t const * const txBuffPtr, uint16_t const txSize) const;
 	bool read(uint8_t const devAddr, uint8_t* const rxBuffPtr, uint16_t const rxSize) const;
 	bool transaction(uint8_t const devAddr, uint8_t const * const txBuffPtr, uint16_t const txSize, uint8_t* const rxBuffPtr, uint16_t const rxSize) const;

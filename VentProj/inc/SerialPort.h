@@ -15,7 +15,6 @@
 class SerialPort {
 public:
 	SerialPort();
-	virtual ~SerialPort();
 	int available();
 	void begin(int speed = 9600);
 	int read();

@@ -29,8 +29,6 @@ ModeEdit::ModeEdit(LiquidCrystal& lcd, int const lowerLimit, int const upperLimi
 	}
 }
 
-ModeEdit::~ModeEdit() { /* Empty */ }
-
 void ModeEdit::increment() {
 	if (edit < upperLimit)
 		edit++;

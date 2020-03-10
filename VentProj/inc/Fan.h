@@ -17,7 +17,6 @@ void Sleep(unsigned int ms);
 class Fan {
 public:
 	Fan();
-	virtual ~Fan();
 
 	bool 	setFrequency(uint16_t freq);
 	int16_t getFrequency();

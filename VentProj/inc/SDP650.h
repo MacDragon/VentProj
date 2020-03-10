@@ -17,7 +17,6 @@ void Sleep(unsigned int ms);
 class SDP650 : public Subject {
 public:
 	SDP650(I2C&& i2c = I2C{});
-	virtual ~SDP650();
 	int16_t getPressure();
 
 	void attach(PropertyEdit* observer);

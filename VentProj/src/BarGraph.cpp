@@ -29,8 +29,6 @@ BarGraph::BarGraph(LiquidCrystal& lcd, int length, int maxval, bool vertical): l
 	lcd.setCursor(0, 0);
 }
 
-BarGraph::~BarGraph() { /* Empty */ }
-
 void BarGraph::draw(int value) {
 	if (value < 0)
 		value = 0;
