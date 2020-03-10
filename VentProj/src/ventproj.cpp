@@ -19,7 +19,7 @@
 #include "PIO.h"
 #include "QEI.h"
 
-static constexpr uint32_t kDebounceTime { 100 }; // 100ms. Lazy debouncing.
+static constexpr uint32_t kDebounceTime { 200 }; // 200ms. Lazy debouncing.
 static constexpr uint32_t kLoopTime    { 1000 }; // 2000ms
 static constexpr uint32_t kTickrateHz  { 1000 };
 static std::atomic<uint32_t> counter, systicks, last_press;
@@ -88,15 +88,9 @@ int main(void) {
 
 	/* Input setup */
 	DigitalIoPin button(PD3_Port, PD3_Pin, true, true, true);
-	qei = new QEI(LpcPinMap{ PD4_Port, PD4_Pin }, LpcPinMap{ PD5_Port, PD5_Pin }, 3);
+	button.enableInterrupt(PIN_INT0_IRQn, Mode::Edge, Level::High);
 
-	Chip_PININT_Init(LPC_GPIO_PIN_INT);
-	Chip_INMUX_PinIntSel(0, PD3_Port, PD3_Pin);
-	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
-	Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(0));
-	Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(0));
-	NVIC_ClearPendingIRQ(PIN_INT0_IRQn);
-	NVIC_EnableIRQ(PIN_INT0_IRQn);
+	qei = new QEI(LpcPinMap{ PD4_Port, PD4_Pin }, LpcPinMap{ PD5_Port, PD5_Pin }, 3);
 
 	/* LCD setup */
 	Chip_RIT_Init(LPC_RITIMER);
@@ -109,7 +103,9 @@ int main(void) {
 		lcd.print("Error occurred.");
 		Board_LED_Set(0, 1);
 		Chip_WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF);
-		while (1); // Put error handling here.
+		while (1) {
+			/* Put error handling here. */
+		}
 	}
 	else
 		lcd.print("Starting up.");
@@ -147,8 +143,6 @@ int main(void) {
 		auto startTime = millis();
 		auto fanFreq = fan.getFrequency();
 		auto pressure_diff = pressureSensor.getPressure();
-
-		menu->event(MenuItem::show);
 
 		if (fanFreq != Fan::kFanError && pressure_diff != SDP650::kI2CError) {
 			switch (ModeEdit::fanMode) {

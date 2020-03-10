@@ -89,7 +89,6 @@ private:
 	void write4bits(uint8_t);
 	void pulseEnable();
 
-	/* The pins ought to be non-null, so references should be used instead of raw pointers. */
 	DigitalIoPin* const rs_pin; 	// LOW(false): command.  HIGH(true): character.
 	DigitalIoPin* const enable_pin; // activated by a HIGH pulse.
 	DigitalIoPin* const data_pins[4];

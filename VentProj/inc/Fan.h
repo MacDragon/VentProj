@@ -17,7 +17,6 @@ void Sleep(unsigned int ms);
 class Fan {
 public:
 	Fan();
-
 	bool 	setFrequency(uint16_t freq);
 	int16_t getFrequency();
 
@@ -25,7 +24,7 @@ public:
 
 private:
 	ModbusMaster node;
-	static constexpr uint16_t kMinFreq 	= 0; // Not used, probably not accurate either.
+	static constexpr uint16_t kMinFreq 	= 0;
 	static constexpr uint16_t kMaxFreq 	= 20000;
 	static constexpr uint16_t kDelay 	= 50;
 };

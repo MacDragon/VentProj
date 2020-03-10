@@ -12,14 +12,14 @@
 
 class ModbusRegister {
 public:
-	constexpr ModbusRegister(ModbusMaster& master, int const address) : m{ master }, addr{ address } {}
+	constexpr ModbusRegister(ModbusMaster& master, uint32_t const address) : m{ master }, addr{ address } {}
 	ModbusRegister(const ModbusRegister&) = delete;
 	operator int();
 	const ModbusRegister& operator=(int value);
 
 private:
 	ModbusMaster& m;
-	int const addr;
+	uint32_t const addr;
 };
 
 #endif /* MODBUSREGISTER_H_ */

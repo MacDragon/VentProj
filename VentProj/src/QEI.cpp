@@ -46,9 +46,8 @@ __O  uint32_t  SET;/*!< Interrupt status set register */
 
 #define LPC_QEI ((LPC_QEI_T*) LPC_QEI_BASE)
 
-QEI::QEI( LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(maxvel), lastdir(1)
+QEI::QEI(LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(maxvel), lastdir(1)
 {
-
 /*
 	Use the SYSAHBCLKCTRL1 register (Table 51) to enable the clock to the QEI interface.
 	Clear the peripheral reset for the entire comparator block using the PRESETCTRL1 register (Table 36).
@@ -79,7 +78,6 @@ QEI::QEI( LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(max
 
 //		LPC_QEI->IE = 0b1;
 		LPC_QEI->IES = 1 << 5;
-
 
 		//		NVIC_ClearPendingIRQ(QEI_IRQn);
 
@@ -113,17 +111,17 @@ int QEI::read() {
 
 	// behaviour may need tweaking, intended to stop spurious readings on slow precision knob turning for single unit adjustments.
 
-	if ( abs(posread) > 0 && !ignore ){ //
+	if (posread && !ignore) { //
 		if ( vel > maxvel ) vel = maxvel; // cap maximum velocity to prevent unexpectedly large swings.
 
 		if ( lastdir != dir ) vel = 1; // if switched directions, assume minimum velocity to eliminate spurious jumps on change.
 
 		posupd = posread * vel; // calculate how much to move position by.
 
-		if ( posupd == 0 ) posupd = 1 * (dir ? -1 : 1 ); // an input was detected, ensure at least one value movement regardless of calculation.
+		if (posupd == 0) posupd = dir ? -1 : 1; // an input was detected, ensure at least one value movement regardless of calculation.
 		ignore = true; // ignore next reading.
 		lastdir = dir; // store current direction so change can be detected.
-	} else if ( abs(posread) > 0 && ignore ){
+	} else if (posread && ignore) {
 		ignore = false;
 	}
 

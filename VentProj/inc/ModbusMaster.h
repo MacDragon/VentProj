@@ -43,7 +43,6 @@ Set to 1 to enable debugging features within class:
   - pin 5 cycles for each millisecond timeout during the Modbus response
  */
 #define __MODBUSMASTER_DEBUG__ (0)
-
 /* _____STANDARD INCLUDES____________________________________________________ */
 // include types & constants of Wiring core API
 #include "SerialPort.h"

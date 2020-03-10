@@ -9,33 +9,27 @@
 #define DIGITALIOPIN_H_
 
 #include "chip.h"
+#include <functional>
+
+
+enum class Mode { Edge, Level };
+enum class Level { Low, High };
 
 class DigitalIoPin {
 public:
-	DigitalIoPin(int const port, int const pin, bool const input, bool const pullup, bool const invert) :
-	port { port }, pin { pin }, input { input }, invert { invert }
-	{
-		LPC_IOCON->PIO[port][pin] = (1U + pullup) << 3 | 1U << 7 | invert << 6;
-		LPC_GPIO->DIR[port] = input ? LPC_GPIO->DIR[port] & ~(1UL << pin) : LPC_GPIO->DIR[port] | 1UL << pin;
-	}
+	DigitalIoPin(int const port, int const pin, bool const input, bool const pullup, bool const invert);
 
-	//virtual ~DigitalIoPin() { /* Empty */ }
-
-	bool read() const {
-		return static_cast<bool>(LPC_GPIO->B[port][pin]);
-	}
-
-	void write(const bool value) const {
-		LPC_GPIO->B[port][pin] = invert ? !value : value;
-	}
-
-	void toggle() const {
-		LPC_GPIO->B[port][pin] = invert ? read() : !read();
-	}
+	bool read() const;
+	void write(bool const value) const;
+	void toggle() const;
+	void enableInterrupt(IRQn_Type IRQn, Mode mode, Level level);
 
 private:
 	int const port, pin;
 	bool const input, invert;
+	static bool interrupt_enabled;
+	static constexpr IRQn_Type&& IRQn_min { PIN_INT0_IRQn };
+	static constexpr IRQn_Type&& IRQn_max { PIN_INT7_IRQn };
 };
 
 #endif /* DIGITALIOPIN_H_ */

@@ -9,12 +9,11 @@
 
 Fan::Fan() : node{ 2 } {
 	ModbusRegister ControlWord { node, 0 };
-	ModbusRegister StatusWord { node, 3 };
+	ModbusRegister StatusWord  { node, 3 };
 
 	/* Not stepping through the state machine laid out
 	 * in the documentation. If it fails and takes too
-	 * long, the watchdog timer will cause a reset.
-	 */
+	 * long, the watchdog timer will cause a reset. */
 	ControlWord = 0x0406;
 	while (!(static_cast<int>(StatusWord) & 0x001))
 		Sleep(10);
@@ -50,7 +49,7 @@ bool Fan::setFrequency(uint16_t freq) {
 
 int16_t Fan::getFrequency() {
 	auto outputFrequency = static_cast<int16_t>(ModbusRegister{ node, 102 });
-	if (outputFrequency >= 0)
-		outputFrequency /= 200; // convert from raw value to percentage
+	if (outputFrequency >= 0) 	// Will be -1 if error
+		outputFrequency /= 200; // Convert from raw value to percentage
 	return outputFrequency;
 }
