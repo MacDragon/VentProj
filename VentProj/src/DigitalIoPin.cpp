@@ -26,7 +26,7 @@ void DigitalIoPin::toggle() const {
 }
 
 void DigitalIoPin::enableInterrupt(IRQn_Type IRQn, Mode mode, Level level) {
-	if (IRQn < IRQn_min || IRQn > IRQn_max || NVIC_GetActive(IRQn))
+	if (IRQn < kIRQnMin || IRQn > kIRQnMax || NVIC_GetActive(IRQn))
 		return;
 
 	if (!interrupt_enabled) {
@@ -34,17 +34,19 @@ void DigitalIoPin::enableInterrupt(IRQn_Type IRQn, Mode mode, Level level) {
 		interrupt_enabled = true;
 	}
 
-	Chip_INMUX_PinIntSel(IRQn - IRQn_min, port, pin);
-	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(IRQn - IRQn_min));
+	Chip_INMUX_PinIntSel(IRQn - kIRQnMin, port, pin);
+	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(IRQn - kIRQnMin));
+
 	if (mode == Mode::Edge)
-		Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(IRQn - IRQn_min));
+		Chip_PININT_SetPinModeEdge(LPC_GPIO_PIN_INT, PININTCH(IRQn - kIRQnMin));
 	else
-		Chip_PININT_SetPinModeLevel(LPC_GPIO_PIN_INT, PININTCH(IRQn - IRQn_min));
+		Chip_PININT_SetPinModeLevel(LPC_GPIO_PIN_INT, PININTCH(IRQn - kIRQnMin));
 
 	if (level == Level::High)
-		Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(IRQn - IRQn_min));
+		Chip_PININT_EnableIntHigh(LPC_GPIO_PIN_INT, PININTCH(IRQn - kIRQnMin));
 	else
-		Chip_PININT_EnableIntLow(LPC_GPIO_PIN_INT, PININTCH(IRQn - IRQn_min));
+		Chip_PININT_EnableIntLow(LPC_GPIO_PIN_INT, PININTCH(IRQn - kIRQnMin));
+
 	NVIC_ClearPendingIRQ(IRQn);
 	NVIC_EnableIRQ(IRQn);
 }

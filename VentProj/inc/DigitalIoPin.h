@@ -28,8 +28,8 @@ private:
 	int const port, pin;
 	bool const input, invert;
 	static bool interrupt_enabled;
-	static constexpr IRQn_Type&& IRQn_min { PIN_INT0_IRQn };
-	static constexpr IRQn_Type&& IRQn_max { PIN_INT7_IRQn };
+	static constexpr IRQn_Type kIRQnMin { PIN_INT0_IRQn };
+	static constexpr IRQn_Type kIRQnMax { PIN_INT7_IRQn };
 };
 
 #endif /* DIGITALIOPIN_H_ */

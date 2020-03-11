@@ -89,7 +89,6 @@ int main(void) {
 	/* Input setup */
 	DigitalIoPin button(PD3_Port, PD3_Pin, true, true, true);
 	button.enableInterrupt(PIN_INT0_IRQn, Mode::Edge, Level::High);
-
 	qei = new QEI(LpcPinMap{ PD4_Port, PD4_Pin }, LpcPinMap{ PD5_Port, PD5_Pin }, 3);
 
 	/* LCD setup */
@@ -99,15 +98,12 @@ int main(void) {
 	LiquidCrystal lcd { &rs, &en, &d0, &d1, &d2, &d3 };
 
 	/* Watchdog timer setup */
-	if (Chip_WWDT_GetStatus(LPC_WWDT) & WWDT_WDMOD_WDTOF) {
+	if (Chip_WWDT_GetStatus(LPC_WWDT) & WWDT_WDMOD_WDTOF) { /* WWDT timeout occurred */
 		lcd.print("Error occurred.");
 		Board_LED_Set(0, 1);
 		Chip_WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF);
-		while (1) {
-			/* Put error handling here. */
-		}
-	}
-	else
+		while (1) { /* Error handling here. */ }
+	} else
 		lcd.print("Starting up.");
 
 	Chip_SYSCTL_PowerUp(SYSCTL_POWERDOWN_WDTOSC_PD); 	/* Enable the WDT oscillator */
@@ -121,18 +117,18 @@ int main(void) {
 	Fan fan;
 
 	/* Pressure Sensor setup */
-	SDP650 pressureSensor;
+	SDP650 pressure_sensor;
 
 	/* Menu setup */
 	menu = new SimpleMenu;
 
-	ModeEdit autoEdit(lcd, 30, 120, ModeEdit::Automatic);
-	autoEdit.observe(pressureSensor);
-	menu->addItem(autoEdit);
+	ModeEdit auto_edit(lcd, 30, 120, ModeEdit::Automatic);
+	auto_edit.observe(pressure_sensor);
+	menu->addItem(auto_edit);
 
-	ModeEdit manualEdit(lcd, 0, 100, ModeEdit::Manual);
-	manualEdit.observe(pressureSensor);
-	menu->addItem(manualEdit);
+	ModeEdit manual_edit(lcd, 0, 100, ModeEdit::Manual);
+	manual_edit.observe(pressure_sensor);
+	menu->addItem(manual_edit);
 
 	/* PID setup */
 	PID<int> pid(1, 0, 0.125);
@@ -140,23 +136,23 @@ int main(void) {
 	Chip_WWDT_Feed(LPC_WWDT);
 
 	while (1) {
-		auto startTime = millis();
-		auto fanFreq = fan.getFrequency();
-		auto pressure_diff = pressureSensor.getPressure();
+		auto start_time = millis();
+		auto fan_freq = fan.getFrequency();
+		auto pressure_diff = pressure_sensor.getPressure();
 
-		if (fanFreq != Fan::kFanError && pressure_diff != SDP650::kI2CError) {
+		if (fan_freq != Fan::kFanError && pressure_diff != SDP650::kI2CError) {
 			switch (ModeEdit::fanMode) {
 			case ModeEdit::Manual:
-				if (fanFreq != manualEdit.getValue()) {
-					fan.setFrequency(manualEdit.getValue());
-					autoEdit.setValue(pressureSensor.getPressure());
+				if (fan_freq != manual_edit.getValue()) {
+					fan.setFrequency(manual_edit.getValue());
+					auto_edit.setValue(pressure_sensor.getPressure());
 				}
 				break;
 
 			case ModeEdit::Automatic:
-				if (abs(pressure_diff - autoEdit.getValue()) > 1) {
-					manualEdit.setValue(fanFreq + pid.calculate(autoEdit.getValue(), pressure_diff));
-					fan.setFrequency(manualEdit.getValue());
+				if (abs(pressure_diff - auto_edit.getValue()) > 1) {
+					manual_edit.setValue(fan_freq + pid.calculate(auto_edit.getValue(), pressure_diff));
+					fan.setFrequency(manual_edit.getValue());
 				}
 				break;
 			}
@@ -166,9 +162,9 @@ int main(void) {
 
 		menu->event(MenuItem::show);
 
-		auto timeTaken = millis() - startTime;
-		if (timeTaken < kLoopTime)
-			Sleep(kLoopTime - timeTaken);
+		auto time_taken = millis() - start_time;
+		if (time_taken < kLoopTime)
+			Sleep(kLoopTime - time_taken);
 
 		/* Feed the watchdog timer at regular 1s intervals */
 		Chip_WWDT_Feed(LPC_WWDT);
