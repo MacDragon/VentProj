@@ -140,24 +140,20 @@ int main(void) {
 		auto fan_freq = fan.getFrequency();
 		auto pressure_diff = pressure_sensor.getPressure();
 
-		if (fan_freq != Fan::kFanError && pressure_diff != SDP650::kI2CError) {
-			switch (ModeEdit::fanMode) {
-			case ModeEdit::Manual:
-				if (fan_freq != manual_edit.getValue()) {
-					fan.setFrequency(manual_edit.getValue());
-					auto_edit.setValue(pressure_sensor.getPressure());
-				}
-				break;
-
-			case ModeEdit::Automatic:
-				if (abs(pressure_diff - auto_edit.getValue()) > 1) {
-					manual_edit.setValue(fan_freq + pid.calculate(auto_edit.getValue(), pressure_diff));
-					fan.setFrequency(manual_edit.getValue());
-				}
-				break;
+		switch (ModeEdit::fanMode) {
+		case ModeEdit::Manual:
+			if (fan_freq != manual_edit.getValue()) {
+				fan.setFrequency(manual_edit.getValue());
+				auto_edit.setValue(pressure_sensor.getPressure());
 			}
-		} else {
-			/* Error handling here */
+			break;
+
+		case ModeEdit::Automatic:
+			if (abs(pressure_diff - auto_edit.getValue()) > 1) {
+				manual_edit.setValue(fan_freq + pid.calculate(auto_edit.getValue(), pressure_diff));
+				fan.setFrequency(manual_edit.getValue());
+			}
+			break;
 		}
 
 		menu->event(MenuItem::show);

@@ -22,8 +22,6 @@ public:
 	void attach(PropertyEdit* observer);
 	void notify();
 
-	static constexpr int16_t kI2CError { INT16_MAX };
-
 private:
 	I2C i2c;
 	int16_t pressure;

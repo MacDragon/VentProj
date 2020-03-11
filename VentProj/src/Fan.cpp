@@ -21,13 +21,14 @@ Fan::Fan() : node{ 2 } {
 	ControlWord = 0x047F;
 	while (!(static_cast<int>(StatusWord) & 0x100))
 		Sleep(10);
+
+	Sleep(kDelay);
 }
 
-bool Fan::setFrequency(uint16_t freq) {
-	int  ctr { 0 };
-	bool atSetpoint { false };
+void Fan::setFrequency(uint16_t freq) {
 	ModbusRegister Frequency { node, 1 };
 	ModbusRegister StatusWord { node, 3 };
+	int result { 0 };
 
 	freq *= 200; /* Convert from percentage to raw value */
 
@@ -38,18 +39,21 @@ bool Fan::setFrequency(uint16_t freq) {
 
 	Frequency = freq;
 
-	do {
-		Sleep(kDelay);
-		auto result = static_cast<int>(StatusWord);
-		atSetpoint = (result >= 0 && result & 0x0100);
-	} while (++ctr < 20 && !atSetpoint);
+	Sleep(kDelay);
 
-	return atSetpoint;
+	while ((result = static_cast<int>(StatusWord)) < 0 && !(result &0x100)) { /* WWDT will cause reset if this fails for too long */
+		Sleep(kDelay);
+	}
+
 }
 
 int16_t Fan::getFrequency() {
-	auto outputFrequency = static_cast<int16_t>(ModbusRegister{ node, 102 });
-	if (outputFrequency >= 0) 	// Will be -1 if error
-		outputFrequency /= 200; // Convert from raw value to percentage
-	return outputFrequency;
+	ModbusRegister OutputFrequency { node, 102 };
+	int16_t result;
+
+	while ((result = static_cast<int16_t>(OutputFrequency)) == -1) { /* WWDT will cause reset if this fails for too long */
+		Sleep(kDelay);
+	}
+
+	return result / 200; /* Convert from raw value to percentage */
 }
