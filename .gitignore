@@ -30,3 +30,24 @@
 *.exe
 *.out
 *.app
+
+# macos files
+.DS_Store
+
+#debug files
+.axf
+.map
+
+Debug/
+.metadata
+bin/
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.settings/
+.loadpath
+.recommenders
+*.launch

@@ -7,27 +7,21 @@
 
 #include "SimpleMenu.h"
 
-SimpleMenu::SimpleMenu() {
-	position = 0;
+SimpleMenu::SimpleMenu() : position{ 0 } { /* Empty */ }
+
+void SimpleMenu::addItem(PropertyEdit& pe) {
+	items.emplace_back(new MenuItem(pe));
 }
 
-SimpleMenu::~SimpleMenu() {
-	// TODO Auto-generated destructor stub
-}
+void SimpleMenu::event(MenuItem::MenuEvent e, int amount) {
+	const std::lock_guard<Imutex> lock(mutex);
 
-void SimpleMenu::addItem(MenuItem *item) {
-	items.push_back(item);
-}
+	if (items.size() <= 0)
+		return;
 
-void SimpleMenu::event(MenuItem::menuEvent e) {
-	if(items.size() <= 0) return;
-
-	if(!items[position]->event(e)) {
-		if(e == MenuItem::up) position++;
-		else if(e == MenuItem::down) position--;
-
-		if(position < 0) position = items.size() - 1;
-		if(position >= (int) items.size()) position = 0;
+	if (!items[position]->event(e, amount)) {
+		if (e == MenuItem::ok && ++position >= static_cast<int>(items.size())) // use ok button to proceed through menu
+			position = 0;
 
 		items[position]->event(MenuItem::show);
 	}

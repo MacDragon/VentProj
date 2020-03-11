@@ -5,7 +5,6 @@
 	<projects>
 		<project>lpc_board_nxp_lpcxpresso_1549</project>
 		<project>lpc_chip_15xx</project>
-		<project>EmbeddedLibrary</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

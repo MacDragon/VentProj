@@ -7,47 +7,56 @@
 
 #include "MenuItem.h"
 
-MenuItem::MenuItem(PropertyEdit *property): pe(property) {
-
-}
-
-MenuItem::~MenuItem() {
-
-}
-
-bool MenuItem::event(menuEvent e) {
+bool MenuItem::event(MenuEvent e, int amount) {
 	bool handled = true;
+
 	switch(e) {
 	case ok:
-		if(pe->getFocus()) {
-			pe->accept();
-			pe->setFocus(false);
+		// do nothing, ok is not used to move between items not start edit.
+		if (pe.getFocus()) {
+			pe.setFocus(false);
+			pe.accept();
 		}
-		else {
-			pe->setFocus(true);;
-		}
-		break;
-	case back:
-		if(pe->getFocus()) {
-			pe->cancel();
-			pe->setFocus(false);
-		}
-		else {
+		else
 			handled = false;
-		}
 		break;
+
+	case back:
+		if (pe.getFocus()) {
+			pe.setFocus(false);
+			pe.cancel();
+		}
+		else
+			handled = false;
+		break;
+
 	case show:
 		break;
+
 	case up:
-		if(pe->getFocus()) pe->increment();
-		else handled = false;
+		if (pe.getFocus())
+			pe.increment();
+		else
+			pe.setFocus(true);
 		break;
+
 	case down:
-		if(pe->getFocus()) pe->decrement();
-		else handled = false;
+		if (pe.getFocus())
+			pe.decrement();
+		else
+			pe.setFocus(true);
 		break;
+
+	case change:
+		if (pe.getFocus())
+			pe.change(amount);
+		else
+			pe.setFocus(true);
+	break;
 	}
-	if(handled) pe->display();
+
+	if (handled)
+		pe.display();
 
 	return handled;
 }
