@@ -13,7 +13,6 @@
 class BarGraph {
 public:
 	BarGraph(LiquidCrystal& lcd, int length = 5, int maxval = 100, bool vertical = false);
-	//virtual ~BarGraph();
 	void draw(int value);
 
 private:

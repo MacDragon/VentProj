@@ -40,5 +40,6 @@ int SerialPort::print(int val, int format) {
 }
 
 void SerialPort::flush() {
-	while(!uart->txempty()) __WFI();
+	while (!uart->txempty())
+		__WFI();
 }
