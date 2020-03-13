@@ -24,7 +24,7 @@ private:
 	ModbusMaster node;
 	static constexpr uint16_t kMinFreq 	= 0;
 	static constexpr uint16_t kMaxFreq 	= 20000;
-	static constexpr uint16_t kDelay 	= 100;
+	static constexpr uint16_t kDelay 	= 50;
 };
 
 #endif /* FAN_H_ */

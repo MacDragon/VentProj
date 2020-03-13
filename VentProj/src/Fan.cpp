@@ -10,19 +10,29 @@
 Fan::Fan() : node{ 2 } {
 	ModbusRegister ControlWord { node, 0 };
 	ModbusRegister StatusWord  { node, 3 };
+	ModbusRegister OutputFrequency { node, 102 };
+	ModbusRegister Current { node, 103 };
 
 	/* Not stepping through the state machine laid out
 	 * in the documentation. If it fails and takes too
 	 * long, the watchdog timer will cause a reset. */
-	ControlWord = 0x0406;
-	while (!(static_cast<int>(StatusWord) & 0x001))
-		Sleep(10);
-
-	ControlWord = 0x047F;
-	while (!(static_cast<int>(StatusWord) & 0x100))
-		Sleep(10);
+	ControlWord = 0x400;
+	OutputFrequency = 0;
+	Current = 0;
 
 	Sleep(kDelay);
+
+	ControlWord = 0x0406;
+
+	do {
+		Sleep(kDelay);
+	} while (!(static_cast<int>(StatusWord) & 0x001));
+
+	ControlWord = 0x047F;
+
+	do {
+		Sleep(kDelay);
+	} while (!(static_cast<int>(StatusWord) & 0x100));
 }
 
 void Fan::setFrequency(uint16_t freq) {
@@ -39,11 +49,9 @@ void Fan::setFrequency(uint16_t freq) {
 
 	Frequency = freq;
 
-	Sleep(kDelay);
-
-	while ((result = static_cast<int>(StatusWord)) < 0 && !(result &0x100)) { /* WWDT will cause reset if this fails for too long */
+	do {  /* WWDT will cause reset if this fails for too long */
 		Sleep(kDelay);
-	}
+	} while ((result = static_cast<int>(StatusWord)) < 0 && !(result &0x100));
 
 }
 
@@ -51,9 +59,9 @@ int16_t Fan::getFrequency() {
 	ModbusRegister OutputFrequency { node, 102 };
 	int16_t result;
 
-	while ((result = static_cast<int16_t>(OutputFrequency)) == -1) { /* WWDT will cause reset if this fails for too long */
+	do { /* WWDT will cause reset if this fails for too long */
 		Sleep(kDelay);
-	}
+	} while ((result = static_cast<int16_t>(OutputFrequency)) == -1);
 
 	return result / 200; /* Convert from raw value to percentage */
 }
