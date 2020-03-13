@@ -37,14 +37,16 @@ void PIN_INT0_IRQHandler(void) {
 }
 
 void QEI_IRQHandler(void){
-	/*	if ( qei != nullptr ){
+	// non working experimentation
+/*	if ( qei != nullptr ){
 		int qeichange = qei->read();
 		if ( qeichange != 0 ){
 			last_press = systicks.load();
-			for ( int i=0;i<abs(qeichange);i++)
+			if (menu != nullptr)
 				menu->event(MenuItem::change, qeichange);
 		}
-	} */
+	}
+	NVIC_ClearPendingIRQ(QEI_IRQn); */
 }
 
 void SysTick_Handler(void) {
@@ -54,12 +56,11 @@ void SysTick_Handler(void) {
 			menu->event(MenuItem::back, 0);
 	}
 
-	if (systicks % 10 == 1 && qei != nullptr) // check knob readings
-	{
+	if (systicks % 10 == 1 && qei != nullptr) { // check knob readings
 		auto qeichange = qei->read();
 		if (qeichange != 0) {
 			last_press = systicks.load();
-			for (int i = 0; i < abs(qeichange) && menu != nullptr; i++)
+			if (menu != nullptr)
 				menu->event(MenuItem::change, qeichange);
 		}
 	}
@@ -104,12 +105,14 @@ int main(void) {
 		Chip_WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF);
 		while (1) { /* Error handling here. */ }
 	} else
-		lcd.print("Starting up.");
+	{
+ 		lcd.print("Starting up.");
+	}
 
 	Chip_SYSCTL_PowerUp(SYSCTL_POWERDOWN_WDTOSC_PD); 	/* Enable the WDT oscillator */
 	auto wdtFreq = Chip_Clock_GetWDTOSCRate() / 4; 		/* The WDT divides the input frequency into it by 4 */
 	Chip_WWDT_Init(LPC_WWDT); 							/* Initialize WWDT (also enables WWDT clock) */
-	Chip_WWDT_SetTimeOut(LPC_WWDT, wdtFreq * 3); 		/* Set watchdog feed time constant to approximately 3s */
+	Chip_WWDT_SetTimeOut(LPC_WWDT, wdtFreq * 5); 		/* Set watchdog feed time constant to approximately 5s */
 	Chip_WWDT_SetOption(LPC_WWDT, WWDT_WDMOD_WDRESET); 	/* Configure WWDT to reset on timeout */
 	Chip_WWDT_Start(LPC_WWDT); 							/* Start watchdog */
 

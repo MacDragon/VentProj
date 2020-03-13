@@ -12,7 +12,7 @@ bool MenuItem::event(MenuEvent e, int amount) {
 
 	switch(e) {
 	case ok:
-		// do nothing, ok is not used to move between items not start edit.
+		// do nothing, ok is now used to move between items not start edit.
 		if (pe.getFocus()) {
 			pe.setFocus(false);
 			pe.accept();
