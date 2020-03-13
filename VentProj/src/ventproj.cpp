@@ -114,7 +114,7 @@ int main(void) {
 	Chip_WWDT_Init(LPC_WWDT); 							/* Initialize WWDT (also enables WWDT clock) */
 	Chip_WWDT_SetTimeOut(LPC_WWDT, wdtFreq * 5); 		/* Set watchdog feed time constant to approximately 5s */
 	Chip_WWDT_SetOption(LPC_WWDT, WWDT_WDMOD_WDRESET); 	/* Configure WWDT to reset on timeout */
-//	Chip_WWDT_Start(LPC_WWDT); 							/* Start watchdog */
+	Chip_WWDT_Start(LPC_WWDT); 							/* Start watchdog */
 
 	/* Fan setup */
 	Fan fan;
