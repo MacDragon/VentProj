@@ -16,23 +16,66 @@ Fan::Fan() : node{ 2 } {
 	/* Not stepping through the state machine laid out
 	 * in the documentation. If it fails and takes too
 	 * long, the watchdog timer will cause a reset. */
-	ControlWord = 0x400;
-	OutputFrequency = 0;
-	Current = 0;
+	ControlWord = 0x406; // reset
 
 	Sleep(kDelay);
 
-	ControlWord = 0x0406;
+	OutputFrequency = 0;
+
+	Sleep(kDelay);
+	Current = 0;
+
+/*	if ( static_cast<int>(StatusWord) & 0x040)){  // if (SW Bit0=1)
+
+	} */
+
+//	ControlWord = 0x0406; // request ready to switch on (CW xxxx xxxx xxxx x110)
+
+	Sleep(kDelay);
 
 	do {
 		Sleep(kDelay);
-	} while (!(static_cast<int>(StatusWord) & 0x001));
+	} while (!(static_cast<int>(StatusWord) & 0x001)); // wait for (SW Bit0=1)
 
-	ControlWord = 0x047F;
+	// ready to switch on.
+
+	ControlWord = 0x407; // request ready to operate (CW xxxx xxxx xxxx x111)
 
 	do {
 		Sleep(kDelay);
-	} while (!(static_cast<int>(StatusWord) & 0x100));
+	} while (!(static_cast<int>(StatusWord) & 0x002)); 	// wait for (SW Bit1=1)
+
+	// ready to operate.
+
+	do {
+		Sleep(kDelay);
+	} while (!(static_cast<int>(StatusWord) & 0x1000)); // wait for SW Bit12=1 // external control enabled.
+
+	ControlWord = 0x40F; //  // request operation enabled (CW Bit3=1 after SW Bit12=1)
+
+	volatile int status = 0;
+	do {
+		Sleep(kDelay);
+		status = StatusWord;
+	} while (!(static_cast<int>(status) & 0x04)); // wait for (SW Bit2=1)
+
+	Sleep(kDelay);
+
+	ControlWord = 0x42F; // request // (CW Bit5=1)
+
+	Sleep(kDelay);
+
+	ControlWord = 0x046F; // (CW Bit6=1)
+
+	Sleep(kDelay);
+
+	ControlWord = 0x047F; // (CW Bit7=1)
+
+
+
+	do {
+		Sleep(kDelay);
+	} while (!(static_cast<int>(StatusWord) & 0x100)); // wait for (SW Bit8=1)
 }
 
 void Fan::setFrequency(uint16_t freq) {

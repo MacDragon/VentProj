@@ -76,16 +76,11 @@ QEI::QEI(LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(maxv
 		// max size of int16, so that can cast as a signed short int and have counter clockwise values show as negative
 		LPC_QEI->MAXPOS = UINT16_MAX;
 
-//		LPC_QEI->IE = 0b1;
+		// set interrupt to clock
 		LPC_QEI->IES = 1 << 5;
 
-		//		NVIC_ClearPendingIRQ(QEI_IRQn);
-
-		//		NVIC_SetPriority((IRQn_Type) QEI_IRQn, 2);
-//		NVIC_EnableIRQ((IRQn_Type) QEI_IRQn);
-
 		/* we're using in 2x mode not 4x now, 4x accuracy only makes harder to read out knob. */
-//		LPC_QEI->CONF |= (1<<2);
+		//		LPC_QEI->CONF |= (1<<2); 4x config
 
 		// add some level of filtering to prevent mistriggers, low enough value that humanly can't move knob fast enough to misread.
 		LPC_QEI->FILTERPHA = 100;
@@ -94,6 +89,10 @@ QEI::QEI(LpcPinMap A, LpcPinMap B, uint16_t maxvel) : ignore(false), maxvel(maxv
 		LPC_QEI->LOAD = SystemCoreClock / 10; // use 100ms period for velocity filtering, shorter results in too changeable a value.
 // reset velocity counter
 		LPC_QEI->CON = 1 << 2;
+// Interrupt handling not currently working satisfactorily, do not uncomment.
+//		NVIC_ClearPendingIRQ(QEI_IRQn);
+
+//		NVIC_EnableIRQ((IRQn_Type) QEI_IRQn);
 }
 
 int QEI::read() {

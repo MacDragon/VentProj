@@ -37,14 +37,16 @@ void PIN_INT0_IRQHandler(void) {
 }
 
 void QEI_IRQHandler(void){
-	/*	if ( qei != nullptr ){
+	// non working experimentation
+/*	if ( qei != nullptr ){
 		int qeichange = qei->read();
 		if ( qeichange != 0 ){
 			last_press = systicks.load();
-			for ( int i=0;i<abs(qeichange);i++)
+			if (menu != nullptr)
 				menu->event(MenuItem::change, qeichange);
 		}
-	} */
+	}
+	NVIC_ClearPendingIRQ(QEI_IRQn); */
 }
 
 void SysTick_Handler(void) {
@@ -102,6 +104,9 @@ int main(void) {
 		Board_LED_Set(0, 1);
 		Chip_WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF);
 		while (1) { /* Error handling here. */ }
+	} else
+	{
+ 		lcd.print("Starting up.");
 	}
 
 	Chip_SYSCTL_PowerUp(SYSCTL_POWERDOWN_WDTOSC_PD); 	/* Enable the WDT oscillator */
@@ -109,7 +114,7 @@ int main(void) {
 	Chip_WWDT_Init(LPC_WWDT); 							/* Initialize WWDT (also enables WWDT clock) */
 	Chip_WWDT_SetTimeOut(LPC_WWDT, wdtFreq * 5); 		/* Set watchdog feed time constant to approximately 5s */
 	Chip_WWDT_SetOption(LPC_WWDT, WWDT_WDMOD_WDRESET); 	/* Configure WWDT to reset on timeout */
-	Chip_WWDT_Start(LPC_WWDT); 							/* Start watchdog */
+//	Chip_WWDT_Start(LPC_WWDT); 							/* Start watchdog */
 
 	/* Fan setup */
 	Fan fan;
