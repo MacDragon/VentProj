@@ -2,7 +2,7 @@
  * Fan.h
  *
  *  Created on: 18 Feb 2020
- *      Author: Joshua
+ *     	Authors: Joshua Waugh & Visa Harvey
  */
 
 #ifndef FAN_H_

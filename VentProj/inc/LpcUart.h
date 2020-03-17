@@ -12,7 +12,7 @@
 
 struct LpcPinMap {
 	int8_t port; /* set to -1 to indicate unused pin */
-	int8_t pin;  /* set to -1 to indicate unused pin  */
+	int8_t pin;  /* set to -1 to indicate unused pin */
 };
 
 struct LpcUartConfig {
@@ -31,7 +31,6 @@ class LpcUart {
 public:
 	LpcUart(const LpcUartConfig &cfg);
 	LpcUart(const LpcUart &) = delete;
-	virtual ~LpcUart();
 	int  free(); /* get amount of free space in transmit buffer */
 	int  peek(); /* get number of received characters in receive buffer */
 	int  write(char c);

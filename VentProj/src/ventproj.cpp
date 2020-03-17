@@ -36,19 +36,6 @@ void PIN_INT0_IRQHandler(void) {
 	Chip_PININT_ClearIntStatus(LPC_GPIO_PIN_INT, PININTCH(0));
 }
 
-void QEI_IRQHandler(void){
-	// non working experimentation
-/*	if ( qei != nullptr ){
-		int qeichange = qei->read();
-		if ( qeichange != 0 ){
-			last_press = systicks.load();
-			if (menu != nullptr)
-				menu->event(MenuItem::change, qeichange);
-		}
-	}
-	NVIC_ClearPendingIRQ(QEI_IRQn); */
-}
-
 void SysTick_Handler(void) {
 	if (++systicks - last_press >= kLoopTime) {
 		last_press = systicks.load();
@@ -56,7 +43,7 @@ void SysTick_Handler(void) {
 			menu->event(MenuItem::back, 0);
 	}
 
-	if (systicks % 10 == 1 && qei != nullptr) { // check knob readings
+	if (systicks % 10 == 1 && qei != nullptr) { // Check knob readings
 		auto qeichange = qei->read();
 		if (qeichange != 0) {
 			last_press = systicks.load();
@@ -104,8 +91,7 @@ int main(void) {
 		Board_LED_Set(0, 1);
 		Chip_WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF);
 		while (1) { /* Error handling here. */ }
-	} else
-	{
+	} else {
  		lcd.print("Starting up.");
 	}
 
