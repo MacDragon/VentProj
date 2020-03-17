@@ -3,6 +3,9 @@
  *
  *  Created on: 1.2.2016
  *      Author: krl
+ *
+ *  Modified: March 2020
+ *  	Author: Visa Harvey
  */
 
 #include "BarGraph.h"

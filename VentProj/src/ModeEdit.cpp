@@ -1,8 +1,10 @@
 /*
  * ModeEdit.cpp
  *
- *  Created on: 2.2.2016
+ *  Originally Created on: 2.2.2016
  *      Author: krl
+ *  Modified: March 2020
+ *  	Authors: Joshua Waugh & Visa Harvey
  */
 
 #include "ModeEdit.h"

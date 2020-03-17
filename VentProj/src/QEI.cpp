@@ -1,8 +1,8 @@
 /*
  * QEI.cpp
  *
- *  Created on: 21.2.2016
- *      Author: krl
+ *  Created on: March 2020
+ *      Author: Visa Harvey
  *      Based on example provided by NXP Semiconductors. See copyright notice below.
  */
 
