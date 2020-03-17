@@ -1,8 +1,8 @@
 /*
  * QEI.h
  *
- *  Created on: 21.2.2016
- *      Author: krl
+ *  Created on: March 2020
+ *      Author: Visa Harvey
  */
 
 #ifndef QEI_H_
